@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    
+    <!-- Material Components for the Web -->
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+        
+        .plan-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .plan-header h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .plan-description {
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .billing-section {
+            margin-bottom: 32px;
+        }
+        
+        .billing-section h3 {
+            margin: 0 0 16px 0;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        .billing-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .billing-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        
+        .billing-option.selected {
+            border-color: #6200ea;
+            background-color: #f3e5f5;
+        }
+        
+        .billing-option .label {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .billing-option .price {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        
+        .billing-option .price-detail {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .save-badge {
+            background-color: #4caf50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .users-section {
+            margin-bottom: 32px;
+        }
+        
+        .users-section h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        .users-description {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .users-control {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .users-control.hidden {
+            display: none;
+        }
+        
+        .users-control button {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .users-control input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 1rem;
+        }
+        
+        .fixed-users {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .add-ons-section {
+            margin-top: 32px;
+        }
+        
+        .add-ons-section h3 {
+            margin: 0 0 24px 0;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        
+        .add-on-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .add-on-info h4 {
+            margin: 0 0 8px 0;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .add-on-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        .add-on-price {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .add-on-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .add-on-item.selected {
+            border-color: #6200ea;
+            background-color: #f8f5ff;
+        }
+        
+        .add-on-billing-options {
+            display: none;
+            margin: 16px 0;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .add-on-item.selected .add-on-billing-options {
+            display: grid;
+        }
+        
+        .add-on-billing-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            text-align: center;
+        }
+        
+        .add-on-billing-option.selected {
+            border-color: #6200ea;
+            background-color: #f3e5f5;
+        }
+        
+        .add-on-billing-option .billing-type {
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-on-billing-option .billing-price {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .add-on-billing-option .billing-detail {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .add-on-save-badge {
+            background-color: #4caf50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .add-on-free-badge {
+            background-color: #ff9800;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .add-on-note {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .add-on-note::before {
+            content: "ℹ";
+            background-color: #e0e0e0;
+            color: #666;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        
+        .remove-button {
+            background: none;
+            border: none;
+            color: #6200ea;
+            cursor: pointer;
+            font-size: 0.875rem;
+            text-decoration: underline;
+        }
+        
+        .order-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .order-summary h3 {
+            margin: 0 0 20px 0;
+            font-size: 1.25rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .currency-badge {
+            background-color: #6200ea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+        
+        .summary-line.total {
+            font-weight: 500;
+            font-size: 1rem;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 16px;
+        }
+        
+        .promo-code {
+            margin: 16px 0;
+            color: #6200ea;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .billing-info {
+            padding: 16px 0;
+            margin: 20px 0;
+        }
+        
+        .billing-info h4 {
+            margin: 0 0 8px 0;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .billing-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .savings {
+            color: #4caf50;
+            font-weight: 500;
+            text-align: right;
+            margin: 16px 0;
+        }
+        
+        .continue-button {
+            width: 100%;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .terms {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 16px;
+            line-height: 1.4;
+        }
+        
+        .cancel-button {
+            background: none;
+            border: none;
+            color: #6200ea;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .change-plan {
+            color: #6200ea;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 16px;
+            display: inline-block;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 1000px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .modal-header h2 {
+            font-size: 2rem;
+            font-weight: 500;
+            margin: 0;
+            color: #333;
+        }
+        
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        
+        .plan-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 32px 24px;
+            text-align: center;
+            background: white;
+            position: relative;
+        }
+        
+        .plan-card.popular {
+            border-color: #6200ea;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #666;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .plan-subtitle {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+        
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .plan-billing {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .plan-button {
+            width: 100%;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 32px;
+            border: 2px solid transparent;
+        }
+        
+        .plan-button.primary {
+            background: #666;
+            color: white;
+            border-color: #666;
+        }
+        
+        .plan-button.secondary {
+            background: white;
+            color: #333;
+            border-color: #e0e0e0;
+        }
+        
+        .plan-features {
+            text-align: left;
+        }
+        
+        .features-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+            color: #333;
+        }
+        
+        .feature-item::before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-top: 2px;
+        }
+        
+        .feature-item.add-on {
+            color: #6200ea;
+        }
+        
+        .feature-item.add-on::before {
+            content: "+";
+            color: #6200ea;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Subscribe</h1>
+        <button class="cancel-button">Cancel</button>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="plan-section">
+                <div class="plan-header">
+                    <h2>Good</h2>
+                    <p class="plan-description">The full workforce management solution, with team scheduling and timesheet tracking</p>
+                </div>
+                
+                <div class="billing-section">
+                    <h3>Billing schedule</h3>
+                    <p style="font-size: 0.875rem; color: #666; margin-bottom: 16px;">Choose monthly billing or save with our discounted annual option. <a href="#" style="color: #6200ea;">Learn more</a></p>
+                    
+                    <div class="billing-options">
+                        <div class="billing-option selected">
+                            <div class="label">Annual <span class="save-badge" id="saveBadge">SAVE 7%</span></div>
+                            <div class="price" id="annualPrice">$6.05 <span class="price-detail">per user / month</span></div>
+                        </div>
+                        <div class="billing-option">
+                            <div class="label">Monthly</div>
+                            <div class="price" id="monthlyPrice">$6.50 <span class="price-detail">per user / month</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="users-section">
+                    <h3 class="users-title">Annual users</h3>
+                    <p class="users-description">Any additional users added above the pre-paid amount will be billed monthly at $[price] per user/month.</p>
+                    
+                    <div class="users-control">
+                        <button>−</button>
+                        <input type="number" value="10" min="1">
+                        <button>+</button>
+                    </div>
+                    
+                    <div class="fixed-users" style="display: none;">
+                        <span class="fixed-user-count">5 users</span>
+                    </div>
+                    
+                    <a href="#" class="change-plan">Change plan</a>
+                </div>
+            </div>
+            
+            <div class="add-ons-section">
+                <h3>Get more out of Deputy with our add-ons</h3>
+                
+                <div class="add-on-item" data-addon="hr">
+                    <div class="add-on-info">
+                        <h4>Deputy HR</h4>
+                        <p>A complete people management solution for your thriving workplace.</p>
+                        <div class="add-on-price">$2.50 per user/month or <strong>purchase annually & save</strong></div>
+                        
+                        <div class="add-on-billing-options">
+                            <div class="add-on-billing-option selected" data-billing="annual">
+                                <div class="billing-type">Annual <span class="add-on-save-badge">SAVE 10%</span></div>
+                                <div class="billing-price">$2.25</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                            <div class="add-on-billing-option" data-billing="monthly">
+                                <div class="billing-type">Monthly</div>
+                                <div class="billing-price">$2.50</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-on-note">
+                            Deputy HR pre-paid users matches Premium annual pre-paid users selected above.
+                        </div>
+                    </div>
+                    <div class="add-on-actions">
+                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
+                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="remove-button" style="display: none;">Remove</button>
+                    </div>
+                </div>
+                
+                <div class="add-on-item" data-addon="payroll">
+                    <div class="add-on-info">
+                        <h4>Payroll</h4>
+                        <p>Your all-in-one solution single touch payroll solution</p>
+                        <div class="add-on-price">$5.00 per user/month</div>
+                        
+                        <div class="add-on-billing-options">
+                            <div class="add-on-billing-option selected" data-billing="annual">
+                                <div class="billing-type">Annual <span class="add-on-save-badge">SAVE 10%</span></div>
+                                <div class="billing-price">$4.50</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                            <div class="add-on-billing-option" data-billing="monthly">
+                                <div class="billing-type">Monthly</div>
+                                <div class="billing-price">$5.00</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-on-note">
+                            Payroll pre-paid users matches Premium annual pre-paid users selected above.
+                        </div>
+                    </div>
+                    <div class="add-on-actions">
+                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
+                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="remove-button" style="display: none;">Remove</button>
+                    </div>
+                </div>
+                
+                <div class="add-on-item" data-addon="messaging">
+                    <div class="add-on-info">
+                        <h4>Messaging <span class="add-on-free-badge" id="messagingFreeBadge" style="display: none;">Free</span></h4>
+                        <p>Description</p>
+                        <div class="add-on-price">$2.50 per user/month</div>
+                        
+                        <div class="add-on-billing-options">
+                            <div class="add-on-billing-option selected" data-billing="annual">
+                                <div class="billing-type">Annual <span class="add-on-save-badge">SAVE 10%</span></div>
+                                <div class="billing-price">$2.25</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                            <div class="add-on-billing-option" data-billing="monthly">
+                                <div class="billing-type">Monthly</div>
+                                <div class="billing-price">$2.50</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-on-note">
+                            Messaging pre-paid users matches Premium annual pre-paid users selected above.
+                        </div>
+                    </div>
+                    <div class="add-on-actions">
+                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
+                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="remove-button" style="display: none;">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="order-summary">
+            <h3>Order summary <span class="currency-badge">AUD</span></h3>
+            
+            <div class="summary-line plan-name">
+                <span><strong>Good</strong> annual</span>
+                <span></span>
+            </div>
+            <div class="summary-line pricing-line">
+                <span>$6.05 per month × 10 pre-paid users</span>
+                <span>$726.00</span>
+            </div>
+            <div class="summary-line">
+                <span>GST 10%</span>
+                <span>$72.60</span>
+            </div>
+            
+            <div class="promo-code">Enter promotion code</div>
+            
+            <!-- Annual billing info -->
+            <div class="billing-info annual-billing">
+                <div class="summary-line total annual-total-line">
+                    <span><strong>Billed annually</strong></span>
+                    <span><strong class="annual-total-amount">$798.60</strong></span>
+                </div>
+                <p style="font-size: 0.875rem; color: #666; margin: 16px 0;">Subscription renews July 1st, 2025</p>
+                <p style="font-size: 0.875rem; color: #666; margin: 16px 0;">Any additional users added above the pre-paid amount will be billed monthly.</p>
+            </div>
+            
+            <div class="savings">Annual savings $54</div>
+            
+            <!-- Monthly billing info -->
+            <div class="monthly-billing" style="display: none;">
+                <div class="summary-line total monthly-total">
+                    <span><strong>Estimated billed monthly</strong></span>
+                    <span><strong>$71.50</strong></span>
+                </div>
+                <p style="font-size: 0.875rem; color: #666; margin: 16px 0;">First invoice issued on July 30th</p>
+                <p style="font-size: 0.875rem; color: #666; margin: 16px 0;">The usage charge is based on the total number of users in your account at any point during the previous month.</p>
+            </div>
+            
+            <div class="summary-line total annual-total">
+                <span><strong>Due today</strong></span>
+                <span><strong>$798.60</strong></span>
+            </div>
+            
+            <div class="summary-line total monthly-due" style="display: none;">
+                <span><strong>Due today</strong></span>
+                <span><strong>$0</strong></span>
+            </div>
+            
+            <button class="continue-button">Continue to payment</button>
+            
+            <div class="terms">
+                By purchasing Deputy Premium you<br>
+                accept our <a href="#" style="color: #6200ea;">subscription agreement</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Plan Selection Modal -->
+    <div class="modal-overlay" id="planModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-header">
+                <h2>Choose your plan</h2>
+            </div>
+            <div class="plans-grid">
+                <!-- Good Plan -->
+                <div class="plan-card">
+                    <div class="plan-name">Good</div>
+                    <div class="plan-subtitle">Ideal for small teams getting started with workforce management.</div>
+                    <div class="plan-price">$6.50</div>
+                    <div class="plan-billing">per user per month<br>billed monthly (excl. GST)</div>
+                    <button class="plan-button secondary" data-plan="good">Choose plan</button>
+                    <div class="plan-features">
+                        <div class="features-title">Core features you'll love:</div>
+                        <ul class="feature-list">
+                            <li class="feature-item">Rostering/Scheduling</li>
+                            <li class="feature-item">Shift Swap & Find Replacement</li>
+                            <li class="feature-item">Timesheets</li>
+                            <li class="feature-item">Time clock</li>
+                            <li class="feature-item">Mobile app</li>
+                            <li class="feature-item">Messaging (Real Time Communication)</li>
+                            <li class="feature-item">Analytics</li>
+                            <li class="feature-item">Labour Law Compliance</li>
+                            <li class="feature-item">Training Requirements</li>
+                            <li class="feature-item">Integrations Library</li>
+                            <li class="feature-item">Leave/Availability management</li>
+                            <li class="feature-item">SMS & email notifications</li>
+                            <li class="feature-item">24/7 email support</li>
+                            <li class="feature-item add-on">Add-ons available</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Better Plan -->
+                <div class="plan-card popular">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="plan-name">Better</div>
+                    <div class="plan-subtitle">Great for growing businesses needing more control and efficiency.</div>
+                    <div class="plan-price">$10.50</div>
+                    <div class="plan-billing">per user per month<br>billed monthly (excl. GST)</div>
+                    <button class="plan-button primary" data-plan="better">Choose plan</button>
+                    <div class="plan-features">
+                        <div class="features-title">Everything in Good, plus:</div>
+                        <ul class="feature-list">
+                            <li class="feature-item">Customisable Pay Rate</li>
+                            <li class="feature-item">Advanced Labour Law Compliance</li>
+                            <li class="feature-item">Scheduling & Forecast Automation</li>
+                            <li class="feature-item">Demand Planning</li>
+                            <li class="feature-item">Business Insights</li>
+                            <li class="feature-item">Timesheet Auto Approval</li>
+                            <li class="feature-item">Export & Share Analytics</li>
+                            <li class="feature-item">Shift Pulse</li>
+                            <li class="feature-item">Single Sign On (SSO)</li>
+                            <li class="feature-item add-on">Add-ons available</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Best Plan -->
+                <div class="plan-card">
+                    <div class="plan-name">Best</div>
+                    <div class="plan-subtitle">Built for large organizations with complex workforce needs.</div>
+                    <div class="plan-price">$14.50</div>
+                    <div class="plan-billing">per user per month<br>billed monthly (excl. GST)</div>
+                    <button class="plan-button secondary" data-plan="best">Choose plan</button>
+                    <div class="plan-features">
+                        <div class="features-title">Everything in Better, plus:</div>
+                        <ul class="feature-list">
+                            <li class="feature-item">Advanced Scheduling</li>
+                            <li class="feature-item">Custom Access Levels</li>
+                            <li class="feature-item">Location Hierarchies</li>
+                            <li class="feature-item">Advanced Timesheets</li>
+                            <li class="feature-item">Custom Pay Centers</li>
+                            <li class="feature-item">Custom Timesheet Fields</li>
+                            <li class="feature-item">Messaging+</li>
+                            <li class="feature-item">Analytics+</li>
+                            <li class="feature-item">Customer Success Manager (CSM)</li>
+                            <li class="feature-item add-on">Add-ons available</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Material Components for the Web JavaScript -->
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script>
+        // Initialize MDC components
+        mdc.autoInit();
+        
+        // Handle billing option selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const billingOptions = document.querySelectorAll('.billing-option');
+            const userCountInput = document.querySelector('.users-control input');
+            const usersControl = document.querySelector('.users-control');
+            const fixedUsers = document.querySelector('.fixed-users');
+            const usersTitle = document.querySelector('.users-title');
+            const usersDescription = document.querySelector('.users-description');
+            const fixedUserCount = 10; // Fixed user count for monthly
+            
+            // Pricing configuration
+            const planPricing = {
+                'good': {
+                    monthly: 6.50,
+                    annual: 6.05, // 7% discount
+                    discount: 7
+                },
+                'better': {
+                    monthly: 10.50,
+                    annual: 9.77, // 7% discount  
+                    discount: 7
+                },
+                'best': {
+                    monthly: 14.50,
+                    annual: 13.05, // 10% discount
+                    discount: 10
+                }
+            };
+            
+            let currentPlanType = 'good'; // Default plan
+            
+            // Add-on pricing configuration (10% discount for annual)
+            const addOnPricing = {
+                'hr': {
+                    monthly: 2.50,
+                    annual: 2.25 // 10% discount
+                },
+                'payroll': {
+                    monthly: 5.00,
+                    annual: 4.50 // 10% discount
+                },
+                'messaging': {
+                    monthly: 2.50,
+                    annual: 2.25 // 10% discount
+                }
+            };
+            
+            // Track selected add-ons
+            let selectedAddOns = {};
+            
+            // Modal handling
+            const modal = document.getElementById('planModal');
+            const changePlanLink = document.querySelector('.change-plan');
+            const modalClose = document.getElementById('modalClose');
+            const planButtons = document.querySelectorAll('[data-plan]');
+            
+            // Open modal when "Change plan" is clicked
+            changePlanLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.style.display = 'flex';
+            });
+            
+            // Close modal when X is clicked
+            modalClose.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside of it
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Handle plan selection in modal
+            planButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const selectedPlan = this.getAttribute('data-plan');
+                    currentPlanType = selectedPlan; // Update current plan type
+                    
+                    // Update the main plan section based on selection
+                    const planHeader = document.querySelector('.plan-header h2');
+                    const planDescription = document.querySelector('.plan-description');
+                    
+                    switch(selectedPlan) {
+                        case 'good':
+                            planHeader.textContent = 'Good';
+                            planDescription.textContent = 'Ideal for small teams getting started with workforce management.';
+                            break;
+                        case 'better':
+                            planHeader.textContent = 'Better';
+                            planDescription.textContent = 'Great for growing businesses needing more control and efficiency.';
+                            break;
+                        case 'best':
+                            planHeader.textContent = 'Best';
+                            planDescription.textContent = 'Built for large organizations with complex workforce needs.';
+                            break;
+                    }
+                    
+                    // Update pricing display
+                    updatePricingDisplay();
+                    
+                    // Update messaging add-on based on plan
+                    updateMessagingAddOnForPlan();
+                    
+                    // Close modal
+                    modal.style.display = 'none';
+                    
+                    // Update order summary
+                    updateOrderSummary();
+                });
+            });
+            
+            // Function to update pricing display in billing options
+            function updatePricingDisplay() {
+                const pricing = planPricing[currentPlanType];
+                const annualPriceEl = document.getElementById('annualPrice');
+                const monthlyPriceEl = document.getElementById('monthlyPrice');
+                const saveBadgeEl = document.getElementById('saveBadge');
+                
+                annualPriceEl.innerHTML = `$${pricing.annual.toFixed(2)} <span class="price-detail">per user / month</span>`;
+                monthlyPriceEl.innerHTML = `$${pricing.monthly.toFixed(2)} <span class="price-detail">per user / month</span>`;
+                saveBadgeEl.textContent = `SAVE ${pricing.discount}%`;
+            }
+            
+            // Function to update messaging add-on based on current plan
+            function updateMessagingAddOnForPlan() {
+                const messagingFreeBadge = document.getElementById('messagingFreeBadge');
+                const messagingItem = document.querySelector('[data-addon="messaging"]');
+                const messagingPrice = messagingItem.querySelector('.add-on-price');
+                const messagingBillingOptions = messagingItem.querySelector('.add-on-billing-options');
+                const messagingNote = messagingItem.querySelector('.add-on-note');
+                const isMessagingSelected = messagingItem.classList.contains('selected');
+                
+                if (currentPlanType === 'best') {
+                    // Best plan: Show free badge and hide pricing
+                    messagingFreeBadge.style.display = 'inline-block';
+                    messagingPrice.style.display = 'none';
+                    
+                    // Hide billing options and note when Best is selected
+                    messagingBillingOptions.style.display = 'none';
+                    messagingNote.style.display = 'none';
+                } else {
+                    // Good/Better plans: Hide free badge and show normal pricing
+                    messagingFreeBadge.style.display = 'none';
+                    messagingPrice.style.display = 'block';
+                    
+                    // Show billing options and note only if messaging is selected
+                    if (isMessagingSelected) {
+                        messagingBillingOptions.style.display = 'grid';
+                        messagingNote.style.display = 'flex';
+                    } else {
+                        messagingBillingOptions.style.display = 'none';
+                        messagingNote.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Add-on functionality
+            const addOnItems = document.querySelectorAll('.add-on-item');
+            
+            addOnItems.forEach(item => {
+                const addOnType = item.getAttribute('data-addon');
+                const addButton = item.querySelector('.add-button');
+                const removeButton = item.querySelector('.remove-button');
+                const billingOptions = item.querySelectorAll('.add-on-billing-option');
+                
+                // Handle Add button click
+                addButton.addEventListener('click', function() {
+                    item.classList.add('selected');
+                    addButton.style.display = 'none';
+                    removeButton.style.display = 'inline-block';
+                    
+                    // Check if base plan is monthly, if so, force monthly billing for add-on
+                    const selectedBaseBilling = document.querySelector('.billing-option.selected');
+                    const isBasePlanMonthly = !selectedBaseBilling.textContent.includes('Annual');
+                    
+                    const billingType = isBasePlanMonthly ? 'monthly' : 'annual';
+                    
+                    // Update add-on billing selection UI
+                    billingOptions.forEach(opt => opt.classList.remove('selected'));
+                    const targetOption = item.querySelector(`[data-billing="${billingType}"]`);
+                    targetOption.classList.add('selected');
+                    
+                    // Add to selected add-ons
+                    selectedAddOns[addOnType] = {
+                        billing: billingType,
+                        price: addOnPricing[addOnType][billingType]
+                    };
+                    
+                    // Update add-on billing UI state based on base plan
+                    updateAddOnBillingState();
+                    
+                    // Update messaging display if this is messaging add-on
+                    if (addOnType === 'messaging') {
+                        updateMessagingAddOnForPlan();
+                    }
+                    
+                    updateOrderSummary();
+                });
+                
+                // Handle Remove button click
+                removeButton.addEventListener('click', function() {
+                    item.classList.remove('selected');
+                    addButton.style.display = 'inline-block';
+                    removeButton.style.display = 'none';
+                    
+                    // Remove from selected add-ons
+                    delete selectedAddOns[addOnType];
+                    
+                    // Update messaging display if this is messaging add-on
+                    if (addOnType === 'messaging') {
+                        updateMessagingAddOnForPlan();
+                    }
+                    
+                    updateOrderSummary();
+                });
+                
+                // Handle billing option selection within add-on
+                billingOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Only allow changes if add-on is selected
+                        if (!item.classList.contains('selected')) return;
+                        
+                        const billingType = this.getAttribute('data-billing');
+                        
+                        // Check if base plan is monthly and user is trying to select annual
+                        const selectedBaseBilling = document.querySelector('.billing-option.selected');
+                        const isBasePlanMonthly = !selectedBaseBilling.textContent.includes('Annual');
+                        
+                        if (isBasePlanMonthly && billingType === 'annual') {
+                            // Block annual selection when base plan is monthly
+                            return;
+                        }
+                        
+                        // Remove selected from all options in this add-on
+                        billingOptions.forEach(opt => opt.classList.remove('selected'));
+                        // Add selected to clicked option
+                        this.classList.add('selected');
+                        
+                        // Update selected add-on billing
+                        if (selectedAddOns[addOnType]) {
+                            selectedAddOns[addOnType].billing = billingType;
+                            selectedAddOns[addOnType].price = addOnPricing[addOnType][billingType];
+                        }
+                        
+                        updateOrderSummary();
+                    });
+                });
+            });
+            
+            // Function to update add-on billing state based on base plan
+            function updateAddOnBillingState() {
+                const selectedBaseBilling = document.querySelector('.billing-option.selected');
+                const isBasePlanMonthly = !selectedBaseBilling.textContent.includes('Annual');
+                
+                addOnItems.forEach(item => {
+                    const addOnType = item.getAttribute('data-addon');
+                    const billingOptions = item.querySelectorAll('.add-on-billing-option');
+                    const annualOption = item.querySelector('[data-billing="annual"]');
+                    const monthlyOption = item.querySelector('[data-billing="monthly"]');
+                    
+                    if (isBasePlanMonthly) {
+                        // Disable annual option visually
+                        annualOption.style.opacity = '0.5';
+                        annualOption.style.cursor = 'not-allowed';
+                        
+                        // If add-on is selected and currently annual, convert to monthly
+                        if (selectedAddOns[addOnType] && selectedAddOns[addOnType].billing === 'annual') {
+                            // Update UI
+                            billingOptions.forEach(opt => opt.classList.remove('selected'));
+                            monthlyOption.classList.add('selected');
+                            
+                            // Update data
+                            selectedAddOns[addOnType].billing = 'monthly';
+                            selectedAddOns[addOnType].price = addOnPricing[addOnType].monthly;
+                        }
+                    } else {
+                        // Enable annual option
+                        annualOption.style.opacity = '1';
+                        annualOption.style.cursor = 'pointer';
+                    }
+                });
+            }
+            
+            billingOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    billingOptions.forEach(opt => opt.classList.remove('selected'));
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    const isAnnual = this.textContent.includes('Annual');
+                    
+                    // Update UI based on billing type
+                    if (isAnnual) {
+                        // Show annual controls
+                        usersControl.style.display = 'flex';
+                        fixedUsers.style.display = 'none';
+                        usersTitle.textContent = 'Annual users';
+                        usersDescription.textContent = 'Any additional users added above the pre-paid amount will be billed monthly at $[price] per user/month.';
+                    } else {
+                        // Show monthly fixed users
+                        usersControl.style.display = 'none';
+                        fixedUsers.style.display = 'block';
+                        usersTitle.textContent = 'Users';
+                        usersDescription.textContent = `${fixedUserCount} users in your account`;
+                        
+                        // Update fixed users display
+                        const fixedUserCountSpan = document.querySelector('.fixed-user-count');
+                        fixedUserCountSpan.textContent = `${fixedUserCount} users`;
+                    }
+                    
+                    // Update add-on billing state based on new base plan billing
+                    updateAddOnBillingState();
+                    
+                    // Update order summary based on selection
+                    updateOrderSummary();
+                });
+            });
+            
+            // Handle user count changes for annual
+            const minusBtn = document.querySelector('.users-control button:first-child');
+            const plusBtn = document.querySelector('.users-control button:last-child');
+            
+            minusBtn.addEventListener('click', function() {
+                const currentValue = parseInt(userCountInput.value);
+                if (currentValue > 1) {
+                    userCountInput.value = currentValue - 1;
+                    updateOrderSummary();
+                }
+            });
+            
+            plusBtn.addEventListener('click', function() {
+                const currentValue = parseInt(userCountInput.value);
+                userCountInput.value = currentValue + 1;
+                updateOrderSummary();
+            });
+            
+            userCountInput.addEventListener('change', function() {
+                updateOrderSummary();
+            });
+            
+            function updateOrderSummary() {
+                const selectedOption = document.querySelector('.billing-option.selected');
+                const isAnnual = selectedOption.textContent.includes('Annual');
+                const userCount = isAnnual ? parseInt(userCountInput.value) : fixedUserCount;
+                
+                // Get pricing based on current plan
+                const pricing = planPricing[currentPlanType];
+                let basePlanSubtotal;
+                
+                if (isAnnual) {
+                    // Annual: Annual price × pre-paid user total × 12
+                    basePlanSubtotal = pricing.annual * userCount * 12;
+                } else {
+                    // Monthly: Monthly price × user total
+                    basePlanSubtotal = pricing.monthly * userCount;
+                }
+                
+                // Separate annual and monthly add-ons
+                let annualAddOnSubtotal = 0;
+                let monthlyAddOnSubtotal = 0;
+                
+                for (const [addOnType, addOnData] of Object.entries(selectedAddOns)) {
+                    let addOnCost;
+                    
+                    // Check if messaging is free with Best plan
+                    if (addOnType === 'messaging' && currentPlanType === 'best') {
+                        addOnCost = 0; // Free with Best plan
+                    } else {
+                        if (addOnData.billing === 'annual') {
+                            addOnCost = addOnData.price * userCount * 12;
+                        } else {
+                            addOnCost = addOnData.price * userCount;
+                        }
+                    }
+                    
+                    if (addOnData.billing === 'annual') {
+                        annualAddOnSubtotal += addOnCost;
+                    } else {
+                        monthlyAddOnSubtotal += addOnCost;
+                    }
+                }
+                
+                // Calculate totals for annual and monthly sections
+                let annualTotal = 0;
+                let monthlyTotal = 0;
+                
+                if (isAnnual) {
+                    // Base plan is annual
+                    const annualSubtotal = basePlanSubtotal + annualAddOnSubtotal;
+                    const annualGst = annualSubtotal * 0.1;
+                    annualTotal = annualSubtotal + annualGst;
+                } else {
+                    // Base plan is monthly
+                    monthlyAddOnSubtotal += basePlanSubtotal;
+                }
+                
+                if (monthlyAddOnSubtotal > 0) {
+                    const monthlyGst = monthlyAddOnSubtotal * 0.1;
+                    monthlyTotal = monthlyAddOnSubtotal + monthlyGst;
+                }
+                
+                // Update the plan name
+                const planName = document.querySelector('.plan-name span:first-child');
+                const currentPlan = document.querySelector('.plan-header h2').textContent;
+                
+                if (isAnnual) {
+                    planName.innerHTML = `<strong>${currentPlan}</strong> annual`;
+                } else {
+                    planName.innerHTML = `<strong>${currentPlan}</strong> monthly`;
+                }
+                
+                // Update base plan pricing line
+                const orderSummary = document.querySelector('.order-summary');
+                const summaryLines = orderSummary.querySelectorAll('.summary-line');
+                const pricingLine = summaryLines[1];
+                const gstLine = summaryLines[2];
+                const priceDetail = pricingLine.querySelector('span:first-child');
+                const priceAmount = pricingLine.querySelector('span:last-child');
+                const gstAmount = gstLine.querySelector('span:last-child');
+                
+                if (isAnnual) {
+                    priceDetail.textContent = `$${pricing.annual.toFixed(2)} per month × ${userCount} pre-paid users`;
+                    priceAmount.textContent = `$${basePlanSubtotal.toFixed(2)}`;
+                    gstAmount.textContent = `$${(basePlanSubtotal * 0.1).toFixed(2)}`;
+                } else {
+                    priceDetail.textContent = `$${pricing.monthly.toFixed(2)} per month × ${userCount} users`;
+                    priceAmount.textContent = `$${basePlanSubtotal.toFixed(2)}`;
+                    gstAmount.textContent = `$${(basePlanSubtotal * 0.1).toFixed(2)}`;
+                }
+                
+                // Update add-on lines in order summary
+                updateAddOnLines(userCount, isAnnual);
+                
+                // Update billing sections and totals
+                updateBillingSections(annualTotal, monthlyTotal, isAnnual, userCount);
+            }
+            
+            // Function to update billing sections based on mixed billing
+            function updateBillingSections(annualTotal, monthlyTotal, isBasePlanAnnual, userCount) {
+                const annualBilling = document.querySelector('.annual-billing');
+                const monthlyBilling = document.querySelector('.monthly-billing');
+                const savings = document.querySelector('.savings');
+                const annualTotalElement = document.querySelector('.annual-total');
+                const monthlyDue = document.querySelector('.monthly-due');
+                const monthlyTotalElement = document.querySelector('.monthly-total span:last-child strong');
+                const annualTotalAmount = document.querySelector('.annual-total-amount');
+                
+                // Calculate savings
+                const pricing = planPricing[currentPlanType];
+                let totalSavings = 0;
+                
+                if (isBasePlanAnnual) {
+                    // Add base plan savings
+                    totalSavings += (pricing.monthly - pricing.annual) * userCount * 12;
+                }
+                
+                // Add savings from annual add-ons
+                for (const [addOnType, addOnData] of Object.entries(selectedAddOns)) {
+                    if (addOnData.billing === 'annual' && !(addOnType === 'messaging' && currentPlanType === 'best')) {
+                        const monthlyPrice = addOnPricing[addOnType].monthly;
+                        const annualPrice = addOnPricing[addOnType].annual;
+                        totalSavings += (monthlyPrice - annualPrice) * userCount * 12;
+                    }
+                }
+                
+                // Show/hide sections based on what we have
+                if (annualTotal > 0) {
+                    // Show annual section
+                    annualBilling.style.display = 'block';
+                    annualTotalAmount.textContent = `$${annualTotal.toFixed(2)}`;
+                    
+                    if (totalSavings > 0) {
+                        savings.style.display = 'block';
+                        savings.textContent = `Annual savings $${totalSavings.toFixed(0)}`;
+                    } else {
+                        savings.style.display = 'none';
+                    }
+                } else {
+                    // Hide annual section
+                    annualBilling.style.display = 'none';
+                    savings.style.display = 'none';
+                }
+                
+                if (monthlyTotal > 0) {
+                    // Show monthly section
+                    monthlyBilling.style.display = 'block';
+                    monthlyTotalElement.textContent = `$${monthlyTotal.toFixed(2)}`;
+                } else {
+                    // Hide monthly section
+                    monthlyBilling.style.display = 'none';
+                }
+                
+                // "Due today" ONLY includes annual charges
+                if (annualTotal > 0) {
+                    // Show "Due today" with annual total
+                    annualTotalElement.style.display = 'flex';
+                    const dueTodayAmount = document.querySelector('.annual-total span:last-child strong');
+                    dueTodayAmount.textContent = `$${annualTotal.toFixed(2)}`;
+                } else {
+                    // If no annual charges, Due today is $0
+                    annualTotalElement.style.display = 'flex';
+                    const dueTodayAmount = document.querySelector('.annual-total span:last-child strong');
+                    dueTodayAmount.textContent = '$0.00';
+                }
+                
+                // Never show monthly items in "Due today"
+                monthlyDue.style.display = 'none';
+            }
+            
+            // Function to update add-on lines in order summary
+            function updateAddOnLines(userCount, isAnnual) {
+                const orderSummary = document.querySelector('.order-summary');
+                const promoCodeDiv = document.querySelector('.promo-code');
+                
+                // Remove existing add-on lines
+                const existingAddOnLines = orderSummary.querySelectorAll('.add-on-summary-line');
+                existingAddOnLines.forEach(line => line.remove());
+                
+                // Add lines for selected add-ons
+                for (const [addOnType, addOnData] of Object.entries(selectedAddOns)) {
+                    let addOnCost;
+                    let addOnName = addOnType.charAt(0).toUpperCase() + addOnType.slice(1);
+                    if (addOnType === 'hr') addOnName = 'Deputy HR';
+                    
+                    // Create plan name line for add-on
+                    const addOnNameLine = document.createElement('div');
+                    addOnNameLine.className = 'summary-line add-on-summary-line';
+                    addOnNameLine.innerHTML = `
+                        <span><strong>${addOnName}</strong> ${addOnData.billing}</span>
+                        <span></span>
+                    `;
+                    
+                    // Create pricing line for add-on
+                    const addOnPriceLine = document.createElement('div');
+                    addOnPriceLine.className = 'summary-line add-on-summary-line';
+                    
+                    // Check if messaging is free with Best plan
+                    if (addOnType === 'messaging' && currentPlanType === 'best') {
+                        addOnCost = 0;
+                        addOnPriceLine.innerHTML = `
+                            <span>Free with Best plan</span>
+                            <span>$0.00</span>
+                        `;
+                    } else {
+                        if (addOnData.billing === 'annual') {
+                            addOnCost = addOnData.price * userCount * 12;
+                            addOnPriceLine.innerHTML = `
+                                <span>$${addOnData.price.toFixed(2)} per month × ${userCount} pre-paid users</span>
+                                <span>$${addOnCost.toFixed(2)}</span>
+                            `;
+                        } else {
+                            addOnCost = addOnData.price * userCount;
+                            addOnPriceLine.innerHTML = `
+                                <span>$${addOnData.price.toFixed(2)} per month × ${userCount} users</span>
+                                <span>$${addOnCost.toFixed(2)}</span>
+                            `;
+                        }
+                    }
+                    
+                    // Create GST line for add-on
+                    const addOnGstLine = document.createElement('div');
+                    addOnGstLine.className = 'summary-line add-on-summary-line';
+                    const addOnGst = addOnCost * 0.1;
+                    addOnGstLine.innerHTML = `
+                        <span>GST 10%</span>
+                        <span>$${addOnGst.toFixed(2)}</span>
+                    `;
+                    
+                    // Insert all three lines before promo code section
+                    orderSummary.insertBefore(addOnNameLine, promoCodeDiv);
+                    orderSummary.insertBefore(addOnPriceLine, promoCodeDiv);
+                    orderSummary.insertBefore(addOnGstLine, promoCodeDiv);
+                }
+            }
+            
+            // Initialize pricing display and calculations on page load
+            updatePricingDisplay();
+            updateMessagingAddOnForPlan();
+            updateOrderSummary();
+        });
+    </script>
+</body>
+</html> 
