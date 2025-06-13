@@ -8,11 +8,11 @@
     <!-- Material Components for the Web -->
     <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Public Sans', sans-serif;
             margin: 0;
             background-color: #f5f5f5;
         }
@@ -655,7 +655,7 @@
                 
                 <div class="add-on-item" data-addon="hr">
                     <div class="add-on-info">
-                        <h4>Deputy HR</h4>
+                        <h4>HR</h4>
                         <p>A complete people management solution for your thriving workplace.</p>
                         <div class="add-on-price">$2.50 per user/month or <strong>purchase annually & save</strong></div>
                         
@@ -673,7 +673,7 @@
                         </div>
                         
                         <div class="add-on-note">
-                            Deputy HR pre-paid users matches Premium annual pre-paid users selected above.
+                            HR pre-paid users matches Premium annual pre-paid users selected above.
                         </div>
                     </div>
                     <div class="add-on-actions">
@@ -734,6 +734,36 @@
                         
                         <div class="add-on-note">
                             Messaging pre-paid users matches Premium annual pre-paid users selected above.
+                        </div>
+                    </div>
+                    <div class="add-on-actions">
+                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
+                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="remove-button" style="display: none;">Remove</button>
+                    </div>
+                </div>
+                
+                <div class="add-on-item" data-addon="analytics">
+                    <div class="add-on-info">
+                        <h4>Analytics+ <span class="add-on-free-badge" id="analyticsFreeBadge" style="display: none;">Free</span></h4>
+                        <p>Advanced analytics and reporting for data-driven workforce decisions</p>
+                        <div class="add-on-price">$3.00 per user/month</div>
+                        
+                        <div class="add-on-billing-options">
+                            <div class="add-on-billing-option selected" data-billing="annual">
+                                <div class="billing-type">Annual <span class="add-on-save-badge">SAVE 10%</span></div>
+                                <div class="billing-price">$2.70</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                            <div class="add-on-billing-option" data-billing="monthly">
+                                <div class="billing-type">Monthly</div>
+                                <div class="billing-price">$3.00</div>
+                                <div class="billing-detail">per user / month</div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-on-note">
+                            Analytics+ pre-paid users matches Premium annual pre-paid users selected above.
                         </div>
                     </div>
                     <div class="add-on-actions">
@@ -942,11 +972,16 @@
                 'messaging': {
                     monthly: 2.50,
                     annual: 2.25 // 10% discount
+                },
+                'analytics': {
+                    monthly: 3.00,
+                    annual: 2.70 // 10% discount
                 }
             };
             
             // Track selected add-ons
             let selectedAddOns = {};
+            let userSelectedAddOns = {}; // Track what user actually selected (not auto-selected)
             
             // Modal handling
             const modal = document.getElementById('planModal');
@@ -975,7 +1010,12 @@
             // Handle plan selection in modal
             planButtons.forEach(button => {
                 button.addEventListener('click', function() {
+                    const previousPlan = currentPlanType;
                     const selectedPlan = this.getAttribute('data-plan');
+                    
+                    // Before switching plans, handle add-on persistence logic
+                    handlePlanSwitchAddOns(previousPlan, selectedPlan);
+                    
                     currentPlanType = selectedPlan; // Update current plan type
                     
                     // Update the main plan section based on selection
@@ -1011,6 +1051,36 @@
                 });
             });
             
+            // Function to handle add-on persistence when switching plans
+            function handlePlanSwitchAddOns(previousPlan, newPlan) {
+                if (previousPlan === 'best' && newPlan !== 'best') {
+                    // Switching FROM Best plan: Remove auto-added free add-ons, keep user-selected ones
+                    const messagingItem = document.querySelector('[data-addon="messaging"]');
+                    const analyticsItem = document.querySelector('[data-addon="analytics"]');
+                    
+                    // Handle messaging add-on
+                    if (selectedAddOns['messaging'] && !userSelectedAddOns['messaging']) {
+                        // Was auto-added, remove it
+                        delete selectedAddOns['messaging'];
+                        messagingItem.classList.remove('selected');
+                        messagingItem.querySelector('.add-button').style.display = 'inline-block';
+                        messagingItem.querySelector('.remove-button').style.display = 'none';
+                    }
+                    
+                    // Handle analytics add-on
+                    if (selectedAddOns['analytics'] && !userSelectedAddOns['analytics']) {
+                        // Was auto-added, remove it
+                        delete selectedAddOns['analytics'];
+                        analyticsItem.classList.remove('selected');
+                        analyticsItem.querySelector('.add-button').style.display = 'inline-block';
+                        analyticsItem.querySelector('.remove-button').style.display = 'none';
+                    }
+                } else if (previousPlan !== 'best' && newPlan === 'best') {
+                    // Switching TO Best plan: Save current selections as user-selected
+                    userSelectedAddOns = { ...selectedAddOns };
+                }
+            }
+            
             // Function to update pricing display in billing options
             function updatePricingDisplay() {
                 const pricing = planPricing[currentPlanType];
@@ -1030,28 +1100,107 @@
                 const messagingPrice = messagingItem.querySelector('.add-on-price');
                 const messagingBillingOptions = messagingItem.querySelector('.add-on-billing-options');
                 const messagingNote = messagingItem.querySelector('.add-on-note');
+                const messagingAddButton = messagingItem.querySelector('.add-button');
+                const messagingRemoveButton = messagingItem.querySelector('.remove-button');
                 const isMessagingSelected = messagingItem.classList.contains('selected');
                 
+                // Also handle Analytics+
+                const analyticsFreeBadge = document.getElementById('analyticsFreeBadge');
+                const analyticsItem = document.querySelector('[data-addon="analytics"]');
+                const analyticsPrice = analyticsItem.querySelector('.add-on-price');
+                const analyticsBillingOptions = analyticsItem.querySelector('.add-on-billing-options');
+                const analyticsNote = analyticsItem.querySelector('.add-on-note');
+                const analyticsAddButton = analyticsItem.querySelector('.add-button');
+                const analyticsRemoveButton = analyticsItem.querySelector('.remove-button');
+                const isAnalyticsSelected = analyticsItem.classList.contains('selected');
+                
                 if (currentPlanType === 'best') {
-                    // Best plan: Show free badge and hide pricing
+                    // Best plan: Show free badge, hide pricing, auto-select, and prevent removal
                     messagingFreeBadge.style.display = 'inline-block';
                     messagingPrice.style.display = 'none';
-                    
-                    // Hide billing options and note when Best is selected
                     messagingBillingOptions.style.display = 'none';
                     messagingNote.style.display = 'none';
+                    
+                    analyticsFreeBadge.style.display = 'inline-block';
+                    analyticsPrice.style.display = 'none';
+                    analyticsBillingOptions.style.display = 'none';
+                    analyticsNote.style.display = 'none';
+                    
+                    // Auto-select messaging and analytics+ and hide remove buttons
+                    if (!isMessagingSelected) {
+                        messagingItem.classList.add('selected');
+                        messagingAddButton.style.display = 'none';
+                        messagingRemoveButton.style.display = 'none'; // Hide remove button for free items
+                        
+                        // Add to selected add-ons with current billing type
+                        const selectedBaseBilling = document.querySelector('.billing-option.selected');
+                        const billingType = selectedBaseBilling.textContent.includes('Annual') ? 'annual' : 'monthly';
+                        selectedAddOns['messaging'] = {
+                            billing: billingType,
+                            price: addOnPricing['messaging'][billingType]
+                        };
+                        
+                        // Only mark as user-selected if user had already selected it before switching to Best
+                        if (!userSelectedAddOns['messaging']) {
+                            // This is auto-selected, don't mark as user-selected
+                        }
+                    } else {
+                        // Already selected, just hide remove button
+                        messagingRemoveButton.style.display = 'none';
+                    }
+                    
+                    if (!isAnalyticsSelected) {
+                        analyticsItem.classList.add('selected');
+                        analyticsAddButton.style.display = 'none';
+                        analyticsRemoveButton.style.display = 'none'; // Hide remove button for free items
+                        
+                        // Add to selected add-ons with current billing type
+                        const selectedBaseBilling = document.querySelector('.billing-option.selected');
+                        const billingType = selectedBaseBilling.textContent.includes('Annual') ? 'annual' : 'monthly';
+                        selectedAddOns['analytics'] = {
+                            billing: billingType,
+                            price: addOnPricing['analytics'][billingType]
+                        };
+                        
+                        // Only mark as user-selected if user had already selected it before switching to Best
+                        if (!userSelectedAddOns['analytics']) {
+                            // This is auto-selected, don't mark as user-selected
+                        }
+                    } else {
+                        // Already selected, just hide remove button
+                        analyticsRemoveButton.style.display = 'none';
+                    }
                 } else {
-                    // Good/Better plans: Hide free badge and show normal pricing
+                    // Good/Better plans: Hide free badge, show normal pricing, and allow removal
                     messagingFreeBadge.style.display = 'none';
                     messagingPrice.style.display = 'block';
                     
-                    // Show billing options and note only if messaging is selected
+                    analyticsFreeBadge.style.display = 'none';
+                    analyticsPrice.style.display = 'block';
+                    
+                    // Show normal add/remove button behavior
                     if (isMessagingSelected) {
+                        messagingAddButton.style.display = 'none';
+                        messagingRemoveButton.style.display = 'inline-block';
                         messagingBillingOptions.style.display = 'grid';
                         messagingNote.style.display = 'flex';
                     } else {
+                        messagingAddButton.style.display = 'inline-block';
+                        messagingRemoveButton.style.display = 'none';
                         messagingBillingOptions.style.display = 'none';
                         messagingNote.style.display = 'none';
+                    }
+                    
+                    if (isAnalyticsSelected) {
+                        analyticsAddButton.style.display = 'none';
+                        analyticsRemoveButton.style.display = 'inline-block';
+                        analyticsBillingOptions.style.display = 'grid';
+                        analyticsNote.style.display = 'flex';
+                    } else {
+                        analyticsAddButton.style.display = 'inline-block';
+                        analyticsRemoveButton.style.display = 'none';
+                        analyticsBillingOptions.style.display = 'none';
+                        analyticsNote.style.display = 'none';
                     }
                 }
             }
@@ -1088,6 +1237,9 @@
                         price: addOnPricing[addOnType][billingType]
                     };
                     
+                    // Mark as user-selected (not auto-selected)
+                    userSelectedAddOns[addOnType] = true;
+                    
                     // Update add-on billing UI state based on base plan
                     updateAddOnBillingState();
                     
@@ -1096,11 +1248,21 @@
                         updateMessagingAddOnForPlan();
                     }
                     
+                    // Update analytics display if this is analytics add-on
+                    if (addOnType === 'analytics') {
+                        updateMessagingAddOnForPlan();
+                    }
+                    
                     updateOrderSummary();
                 });
                 
                 // Handle Remove button click
                 removeButton.addEventListener('click', function() {
+                    // Prevent removal of free add-ons with Best plan
+                    if (currentPlanType === 'best' && (addOnType === 'messaging' || addOnType === 'analytics')) {
+                        return; // Block removal of free add-ons
+                    }
+                    
                     item.classList.remove('selected');
                     addButton.style.display = 'inline-block';
                     removeButton.style.display = 'none';
@@ -1108,8 +1270,16 @@
                     // Remove from selected add-ons
                     delete selectedAddOns[addOnType];
                     
+                    // Remove from user-selected tracking
+                    delete userSelectedAddOns[addOnType];
+                    
                     // Update messaging display if this is messaging add-on
                     if (addOnType === 'messaging') {
+                        updateMessagingAddOnForPlan();
+                    }
+                    
+                    // Update analytics display if this is analytics add-on
+                    if (addOnType === 'analytics') {
                         updateMessagingAddOnForPlan();
                     }
                     
@@ -1265,9 +1435,9 @@
                 for (const [addOnType, addOnData] of Object.entries(selectedAddOns)) {
                     let addOnCost;
                     
-                    // Check if messaging is free with Best plan
-                    if (addOnType === 'messaging' && currentPlanType === 'best') {
-                        addOnCost = 0; // Free with Best plan
+                    // Check if add-on is free with Best plan
+                    if ((addOnType === 'messaging' || addOnType === 'analytics') && currentPlanType === 'best') {
+                        addOnCost = 0;
                     } else {
                         if (addOnData.billing === 'annual') {
                             addOnCost = addOnData.price * userCount * 12;
@@ -1359,7 +1529,9 @@
                 
                 // Add savings from annual add-ons
                 for (const [addOnType, addOnData] of Object.entries(selectedAddOns)) {
-                    if (addOnData.billing === 'annual' && !(addOnType === 'messaging' && currentPlanType === 'best')) {
+                    if (addOnData.billing === 'annual' && 
+                        !(addOnType === 'messaging' && currentPlanType === 'best') &&
+                        !(addOnType === 'analytics' && currentPlanType === 'best')) {
                         const monthlyPrice = addOnPricing[addOnType].monthly;
                         const annualPrice = addOnPricing[addOnType].annual;
                         totalSavings += (monthlyPrice - annualPrice) * userCount * 12;
@@ -1423,7 +1595,8 @@
                 for (const [addOnType, addOnData] of Object.entries(selectedAddOns)) {
                     let addOnCost;
                     let addOnName = addOnType.charAt(0).toUpperCase() + addOnType.slice(1);
-                    if (addOnType === 'hr') addOnName = 'Deputy HR';
+                    if (addOnType === 'hr') addOnName = 'HR';
+                    if (addOnType === 'analytics') addOnName = 'Analytics+';
                     
                     // Create plan name line for add-on
                     const addOnNameLine = document.createElement('div');
@@ -1439,6 +1612,12 @@
                     
                     // Check if messaging is free with Best plan
                     if (addOnType === 'messaging' && currentPlanType === 'best') {
+                        addOnCost = 0;
+                        addOnPriceLine.innerHTML = `
+                            <span>Free with Best plan</span>
+                            <span>$0.00</span>
+                        `;
+                    } else if (addOnType === 'analytics' && currentPlanType === 'best') {
                         addOnCost = 0;
                         addOnPriceLine.innerHTML = `
                             <span>Free with Best plan</span>
@@ -1460,19 +1639,21 @@
                         }
                     }
                     
-                    // Create GST line for add-on
-                    const addOnGstLine = document.createElement('div');
-                    addOnGstLine.className = 'summary-line add-on-summary-line';
-                    const addOnGst = addOnCost * 0.1;
-                    addOnGstLine.innerHTML = `
-                        <span>GST 10%</span>
-                        <span>$${addOnGst.toFixed(2)}</span>
-                    `;
-                    
-                    // Insert all three lines before promo code section
+                    // Insert name and pricing lines before promo code section
                     orderSummary.insertBefore(addOnNameLine, promoCodeDiv);
                     orderSummary.insertBefore(addOnPriceLine, promoCodeDiv);
-                    orderSummary.insertBefore(addOnGstLine, promoCodeDiv);
+                    
+                    // Only add GST line if the add-on has a cost (not free)
+                    if (addOnCost > 0) {
+                        const addOnGstLine = document.createElement('div');
+                        addOnGstLine.className = 'summary-line add-on-summary-line';
+                        const addOnGst = addOnCost * 0.1;
+                        addOnGstLine.innerHTML = `
+                            <span>GST 10%</span>
+                            <span>$${addOnGst.toFixed(2)}</span>
+                        `;
+                        orderSummary.insertBefore(addOnGstLine, promoCodeDiv);
+                    }
                 }
             }
             
@@ -1480,6 +1661,13 @@
             updatePricingDisplay();
             updateMessagingAddOnForPlan();
             updateOrderSummary();
+            
+            // Initialize user selection tracking based on current selections
+            // This ensures any initially selected add-ons are tracked as user-selected
+            document.querySelectorAll('.add-on-item.selected').forEach(item => {
+                const addOnType = item.getAttribute('data-addon');
+                userSelectedAddOns[addOnType] = true;
+            });
         });
     </script>
 </body>
