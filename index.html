@@ -8,11 +8,11 @@
     <!-- Material Components for the Web -->
     <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Open Sans', Arial, sans-serif;
             margin: 0;
             background-color: #f5f5f5;
         }
@@ -69,52 +69,157 @@
         }
 
         .bundle-section-title {
-            margin: 0 0 12px 0;
+            margin: 0 0 14px 0;
             font-size: 1.125rem;
-            font-weight: 500;
+            font-weight: 700;
             color: #1f1a44;
         }
 
         .bundle-included-products {
-            margin: 24px 0 28px 0;
+            margin: 24px 0 24px 0;
         }
 
-        .included-products-list {
+        .bundle-plan-options,
+        .included-add-ons-list {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .included-add-ons-list {
+            margin-top: 10px;
+        }
+
+        .bundle-add-ons-title {
+            margin: 22px 0 0 0;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: #1f1a44;
+        }
+
+        .bundle-plan-card {
+            position: relative;
+            border: 2px solid #dedbe8;
+            border-radius: 8px;
+            padding: 16px 18px;
+            background: #fff;
+            min-height: 96px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: left;
+            color: #1f1a44;
+            font: inherit;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .bundle-plan-card:hover,
+        .bundle-plan-card:focus {
+            border-color: #6200ea;
+            box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.08);
+            outline: none;
+        }
+
+        .bundle-plan-card.selected {
+            border-color: #6200ea;
+        }
+
+        .bundle-plan-check {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #6200ea;
+            color: #fff;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .bundle-plan-card.selected .bundle-plan-check {
+            display: flex;
+        }
+
+        .bundle-plan-name {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .bundle-plan-price {
+            display: block;
+            margin-top: 20px;
+            color: #333;
+            font-size: 1rem;
+            font-weight: 700;
         }
 
         .included-product {
-            border: 1px solid #e0e0e0;
+            position: relative;
+            border: 1px solid #dedbe8;
             border-radius: 8px;
-            padding: 14px 16px;
-            background: #fafafa;
+            padding: 10px 14px;
+            background: #fff;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-direction: row;
         }
 
         .included-product-label {
-            display: block;
+            display: none;
             font-size: 0.75rem;
+            font-weight: 700;
             color: #666;
             margin-bottom: 6px;
         }
 
         .included-product-name {
-            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.9375rem;
+            font-weight: 700;
             color: #1f1a44;
         }
 
-        .bundle-base-select {
-            width: 100%;
-            margin-top: 2px;
-            border: 2px solid #6200ea;
-            border-radius: 6px;
-            padding: 8px 36px 8px 10px;
-            background: white;
-            color: #1f1a44;
-            font: inherit;
-            font-weight: 500;
-            cursor: pointer;
+        .included-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 0;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: #f0eaff;
+            color: #6200ea;
+            font-size: 0.625rem;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+
+        .included-badge .material-icons {
+            font-size: 12px;
+        }
+
+        .included-product-prices {
+            margin-top: 0;
+            color: #666;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+
+        .included-product-prices span {
+            display: block;
         }
 
         .billing-section {
@@ -160,6 +265,36 @@
         .billing-option .price-detail {
             font-size: 0.875rem;
             color: #666;
+        }
+
+        .annual-payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 8px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .annual-payment-options.hidden {
+            display: none;
+        }
+
+        .annual-payment-option {
+            border: 2px solid transparent;
+            border-radius: 6px;
+            padding: 12px 16px;
+            background: #fff;
+            color: #1f1a44;
+            font: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .annual-payment-option.selected {
+            border-color: #6200ea;
         }
 
         .save-badge {
@@ -377,17 +512,18 @@
         }
 
         .order-summary {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: #fbfbfd;
+            border-radius: 12px;
+            padding: 28px 32px;
+            box-shadow: 0 2px 16px rgba(31, 26, 68, 0.08);
             height: fit-content;
+            color: #1f1a44;
         }
 
         .order-summary h3 {
-            margin: 0 0 20px 0;
-            font-size: 1.25rem;
-            font-weight: 500;
+            margin: 0 0 28px 0;
+            font-size: 1.125rem;
+            font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -396,41 +532,86 @@
         .currency-badge {
             background-color: #6200ea;
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 700;
         }
 
         .summary-line {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            gap: 16px;
+            margin-bottom: 6px;
             font-size: 0.875rem;
+            line-height: 1.45;
+            color: #6d6a78;
+        }
+
+        .summary-line span:last-child {
+            color: #6d6a78;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .order-summary .plan-name,
+        .order-summary .add-on-name-line {
+            margin: 24px 0 4px 0;
+            color: #6d6a78;
+            font-size: 0.9375rem;
+            font-weight: 400;
+        }
+
+        .order-summary .plan-name strong,
+        .order-summary .add-on-name-line strong {
+            color: #1f1a44;
+            font-weight: 700;
+        }
+
+        .order-summary .pricing-line,
+        .order-summary .summary-gst-line,
+        .order-summary .add-on-price-line,
+        .order-summary .add-on-gst-line {
+            color: #6d6a78;
         }
 
         .summary-line.total {
-            font-weight: 500;
+            color: #1f1a44;
+            font-weight: 700;
             font-size: 1rem;
-            padding-top: 16px;
-            border-top: 1px solid #e0e0e0;
-            margin-top: 16px;
+            padding-top: 0;
+            border-top: 0;
+            margin-top: 22px;
+        }
+
+        .summary-line.total span,
+        .summary-line.total span:last-child {
+            color: #1f1a44;
         }
 
         .bundle-summary-line {
-            color: #2e7d32;
+            color: #207a2a;
+            font-weight: 600;
+        }
+
+        .bundle-summary-line span,
+        .bundle-summary-line span:last-child {
+            color: #207a2a;
         }
 
         .promo-code {
-            margin: 16px 0;
+            border-top: 1px solid #ebe8ef;
+            margin: 24px 0 16px 0;
+            padding-top: 16px;
             color: #6200ea;
             font-size: 0.875rem;
             cursor: pointer;
         }
 
         .billing-info {
-            padding: 16px 0;
-            margin: 20px 0;
+            border-top: 1px solid #ebe8ef;
+            padding: 22px 0 0 0;
+            margin: 18px 0 0 0;
         }
 
         .billing-info h4 {
@@ -446,10 +627,13 @@
         }
 
         .savings {
-            color: #4caf50;
-            font-weight: 500;
+            background: #eefdfd;
+            border-radius: 6px;
+            color: #00857f;
+            font-weight: 700;
             text-align: right;
-            margin: 16px 0;
+            margin: 22px 0 0 0;
+            padding: 10px 12px;
         }
 
         .continue-button {
@@ -457,12 +641,12 @@
             background-color: #6200ea;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 16px;
-            font-size: 1rem;
-            font-weight: 500;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .terms {
@@ -737,23 +921,42 @@
                     <p class="plan-description">Built for large organizations with complex workforce needs.</p>
                 </div>
                 <div class="bundle-included-products">
-                    <h3 class="bundle-section-title">Products included</h3>
-                    <div class="included-products-list">
+                    <h3 class="bundle-section-title">Choose your base plan</h3>
+                    <div class="bundle-plan-options">
+                        <button class="bundle-plan-card" type="button" data-bundle-plan="good" aria-pressed="false">
+                            <span class="bundle-plan-check material-icons" aria-hidden="true">check</span>
+                            <span>
+                                <span class="bundle-plan-name">Lite</span>
+                            </span>
+                            <span class="bundle-plan-price" id="bundlePlanPriceGood"></span>
+                        </button>
+                        <button class="bundle-plan-card selected" type="button" data-bundle-plan="better" aria-pressed="true">
+                            <span class="bundle-plan-check material-icons" aria-hidden="true">check</span>
+                            <span>
+                                <span class="bundle-plan-name">Core</span>
+                            </span>
+                            <span class="bundle-plan-price" id="bundlePlanPriceBetter"></span>
+                        </button>
+                        <button class="bundle-plan-card" type="button" data-bundle-plan="best" aria-pressed="false">
+                            <span class="bundle-plan-check material-icons" aria-hidden="true">check</span>
+                            <span>
+                                <span class="bundle-plan-name">Pro</span>
+                            </span>
+                            <span class="bundle-plan-price" id="bundlePlanPriceBest"></span>
+                        </button>
+                    </div>
+
+                    <h3 class="bundle-add-ons-title">Add-ons included</h3>
+                    <div class="included-add-ons-list">
                         <div class="included-product">
-                            <label class="included-product-label" for="bundleBasePlanSelect">Base plan</label>
-                            <select class="bundle-base-select" id="bundleBasePlanSelect">
-                                <option value="good">Lite</option>
-                                <option value="better" selected>Core</option>
-                                <option value="best">Pro</option>
-                            </select>
+                            <span class="included-product-label">Add-on</span>
+                            <span class="included-product-name">HR <span class="included-badge"><span class="material-icons" aria-hidden="true">lock</span>Included</span></span>
+                            <div class="included-product-prices" id="includedHrPrices"></div>
                         </div>
                         <div class="included-product">
                             <span class="included-product-label">Add-on</span>
-                            <span class="included-product-name">HR</span>
-                        </div>
-                        <div class="included-product">
-                            <span class="included-product-label">Add-on</span>
-                            <span class="included-product-name">Payroll</span>
+                            <span class="included-product-name">Payroll <span class="included-badge"><span class="material-icons" aria-hidden="true">lock</span>Included</span></span>
+                            <div class="included-product-prices" id="includedPayrollPrices"></div>
                         </div>
                     </div>
                 </div>
@@ -763,14 +966,19 @@
                     <p style="font-size: 0.875rem; color: #666; margin-bottom: 16px;">Choose monthly billing or save with our discounted annual option. <a href="#" style="color: #6200ea;">Learn more</a></p>
 
                     <div class="billing-options">
-                        <div class="billing-option selected">
+                        <div class="billing-option selected" data-billing="annual">
                             <div class="label">Annual <span class="save-badge" id="saveBadge">SAVE 10%</span></div>
                             <div class="price" id="annualPrice">$13.05 <span class="price-detail">per user / month</span></div>
                         </div>
-                        <div class="billing-option">
+                        <div class="billing-option" data-billing="monthly">
                             <div class="label">Monthly</div>
                             <div class="price" id="monthlyPrice">$14.50 <span class="price-detail">per user / month</span></div>
                         </div>
+                    </div>
+
+                    <div class="annual-payment-options" aria-label="Annual payment schedule">
+                        <button class="annual-payment-option selected" type="button" data-annual-payment="monthly">Monthly instalments</button>
+                        <button class="annual-payment-option" type="button" data-annual-payment="upfront">Paid upfront</button>
                     </div>
                 </div>
 
@@ -928,7 +1136,7 @@
                 <span>$13.05 per month × 10 pre-paid users</span>
                 <span>$1566.00</span>
             </div>
-            <div class="summary-line">
+            <div class="summary-line summary-gst-line">
                 <span>GST 10%</span>
                 <span>$156.60</span>
             </div>
@@ -1072,12 +1280,16 @@
     <!-- Material Components for the Web JavaScript -->
     <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
     <script>
-        // Initialize MDC components
-        mdc.autoInit();
+        // Initialize MDC components when the external library is available.
+        if (window.mdc) {
+            mdc.autoInit();
+        }
 
         // Handle billing option selection
         document.addEventListener('DOMContentLoaded', function() {
             const billingOptions = document.querySelectorAll('.billing-option');
+            const annualPaymentOptionsContainer = document.querySelector('.annual-payment-options');
+            const annualPaymentOptions = document.querySelectorAll('.annual-payment-option');
             const userCountInput = document.querySelector('.users-control input');
             const usersControl = document.querySelector('.users-control');
             const fixedUsers = document.querySelector('.fixed-users');
@@ -1138,7 +1350,7 @@
             const modalClose = document.getElementById('modalClose');
             const planButtons = document.querySelectorAll('[data-plan]');
             const bundleBanner = document.querySelector('.bundle-banner');
-            const bundleBasePlanSelect = document.getElementById('bundleBasePlanSelect');
+            const bundlePlanCards = document.querySelectorAll('[data-bundle-plan]');
 
             function clearSelectedAddOns() {
                 selectedAddOns = {};
@@ -1168,6 +1380,48 @@
                 document.body.classList.toggle('flow-two-bundle', isEnabled);
             }
 
+            function getSelectedBillingType() {
+                const selectedBaseBilling = document.querySelector('.billing-option.selected');
+                return selectedBaseBilling.getAttribute('data-billing');
+            }
+
+            function getAnnualPaymentSchedule() {
+                const selectedPayment = document.querySelector('.annual-payment-option.selected');
+                return selectedPayment ? selectedPayment.getAttribute('data-annual-payment') : 'monthly';
+            }
+
+            function getPlanDisplayName(planType) {
+                const planNames = {
+                    good: 'Lite',
+                    better: 'Core',
+                    best: 'Pro'
+                };
+
+                return planNames[planType] || document.querySelector('.plan-header h2').textContent;
+            }
+
+            function updateIncludedProductPrices() {
+                if (!document.body.classList.contains('flow-two-bundle')) return;
+
+                const billingType = getSelectedBillingType();
+                const planPriceIds = {
+                    good: 'bundlePlanPriceGood',
+                    better: 'bundlePlanPriceBetter',
+                    best: 'bundlePlanPriceBest'
+                };
+
+                Object.entries(planPriceIds).forEach(([planType, elementId]) => {
+                    document.getElementById(elementId).textContent = `$${planPricing[planType][billingType].toFixed(2)} /user/mo`;
+                });
+
+                document.getElementById('includedHrPrices').innerHTML = `
+                    <span>+$${addOnPricing['hr'][billingType].toFixed(2)} /user/mo</span>
+                `;
+                document.getElementById('includedPayrollPrices').innerHTML = `
+                    <span>+$${addOnPricing['payroll'][billingType].toFixed(2)} /user/mo</span>
+                `;
+            }
+
             function updatePlanDetails(planType) {
                 const planHeader = document.querySelector('.plan-header h2');
                 const planDescription = document.querySelector('.plan-description');
@@ -1193,15 +1447,19 @@
 
             function setFlowTwoBasePlan(planType) {
                 currentPlanType = planType;
-                bundleBasePlanSelect.value = planType;
+                bundlePlanCards.forEach(card => {
+                    const isSelected = card.getAttribute('data-bundle-plan') === planType;
+                    card.classList.toggle('selected', isSelected);
+                    card.setAttribute('aria-pressed', String(isSelected));
+                });
+                updateIncludedProductPrices();
                 updatePricingDisplay();
                 document.getElementById('saveBadge').textContent = 'SAVE 10%';
                 document.getElementById('annualPrice').innerHTML = '$X <span class="price-detail">per user/month</span>';
                 document.getElementById('monthlyPrice').innerHTML = '$X <span class="price-detail">per user/month</span>';
 
                 if (planType === 'best') {
-                    const selectedBaseBilling = document.querySelector('.billing-option.selected');
-                    const billingType = selectedBaseBilling.textContent.includes('Annual') ? 'annual' : 'monthly';
+                    const billingType = getSelectedBillingType();
                     selectAddOn('messaging', billingType);
                     selectAddOn('analytics', billingType);
 
@@ -1267,8 +1525,10 @@
                 const isAnnual = billingType === 'annual';
 
                 billingOptions.forEach(option => {
-                    option.classList.toggle('selected', option.textContent.includes(isAnnual ? 'Annual' : 'Monthly'));
+                    option.classList.toggle('selected', option.getAttribute('data-billing') === billingType);
                 });
+
+                annualPaymentOptionsContainer.classList.toggle('hidden', !isAnnual);
 
                 if (isAnnual) {
                     usersControl.style.display = 'flex';
@@ -1329,6 +1589,8 @@
                 document.querySelector('.plan-description').textContent = 'Everything you need to get started with scheduling and time tracking.';
                 selectBillingSchedule('monthly');
                 setFlowTwoBasePlan('better');
+                selectAddOn('hr', 'monthly');
+                selectAddOn('payroll', 'monthly');
                 document.querySelector('.add-ons-section h3').textContent = "Unlock Deputy's full capabilities with our add-on solutions";
 
                 modal.style.display = 'none';
@@ -1340,9 +1602,11 @@
                 applyBundleDeal();
             });
 
-            bundleBasePlanSelect.addEventListener('change', function() {
-                if (!document.body.classList.contains('flow-two-bundle')) return;
-                setFlowTwoBasePlan(this.value);
+            bundlePlanCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (!document.body.classList.contains('flow-two-bundle')) return;
+                    setFlowTwoBasePlan(this.getAttribute('data-bundle-plan'));
+                });
             });
 
             // Open modal when "Change plan" is clicked
@@ -1483,8 +1747,7 @@
                     analyticsNote.style.display = 'none';
 
                     // Auto-select messaging and analytics+ and hide remove buttons
-                    const selectedBaseBilling = document.querySelector('.billing-option.selected');
-                    const billingType = selectedBaseBilling.textContent.includes('Annual') ? 'annual' : 'monthly';
+                    const billingType = getSelectedBillingType();
 
                     // Auto-select messaging if not already selected
                     if (!isMessagingSelected) {
@@ -1627,10 +1890,7 @@
                     }
 
                     // Default the add-on billing schedule to match the base plan.
-                    const selectedBaseBilling = document.querySelector('.billing-option.selected');
-                    const isBasePlanMonthly = !selectedBaseBilling.textContent.includes('Annual');
-
-                    const billingType = isBasePlanMonthly ? 'monthly' : 'annual';
+                    const billingType = getSelectedBillingType();
 
                     // Update add-on billing selection UI
                     billingOptions.forEach(opt => opt.classList.remove('selected'));
@@ -1748,32 +2008,7 @@
 
             billingOptions.forEach(option => {
                 option.addEventListener('click', function() {
-                    // Remove selected class from all options
-                    billingOptions.forEach(opt => opt.classList.remove('selected'));
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-
-                    const isAnnual = this.textContent.includes('Annual');
-
-                    // Update UI based on billing type
-                    if (isAnnual) {
-                        // Show annual controls
-                        usersControl.style.display = 'flex';
-                        fixedUsers.style.display = 'none';
-                        usersTitle.textContent = 'Annual users';
-                        usersDescription.textContent = 'Any additional users added above the pre-paid amount will be billed monthly at $[price] per user/month.';
-                    } else {
-                        // Show monthly fixed users
-                        usersControl.style.display = 'none';
-                        // Hide the duplicate fixed user count row for monthly
-                        fixedUsers.style.display = 'none';
-                        usersTitle.textContent = 'Users';
-                        usersDescription.textContent = `${fixedUserCount} users in your account`;
-
-                        // Update fixed users display
-                        const fixedUserCountSpan = document.querySelector('.fixed-user-count');
-                        fixedUserCountSpan.textContent = `${fixedUserCount} users`;
-                    }
+                    selectBillingSchedule(this.getAttribute('data-billing'));
 
                     // Update add-on billing state based on new base plan billing
                     updateAddOnBillingState();
@@ -1781,7 +2016,18 @@
                     // Update messaging add-on display (important for Best plan auto-selection)
                     updateMessagingAddOnForPlan();
 
+                    // Update included product prices for the all-in-one bundle view
+                    updateIncludedProductPrices();
+
                     // Update order summary based on selection
+                    updateOrderSummary();
+                });
+            });
+
+            annualPaymentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    annualPaymentOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
                     updateOrderSummary();
                 });
             });
@@ -1808,30 +2054,39 @@
                 updateOrderSummary();
             });
 
-            function getBundleDiscount(isAnnual, userCount, basePlanSubtotal) {
-                const baseBilling = isAnnual ? 'annual' : 'monthly';
+            function getBundleDiscount(isAnnual, userCount, basePlanSubtotal, annualPaymentSchedule) {
+                const annualItemMultiplier = isAnnual && annualPaymentSchedule === 'monthly' ? 1 : 12;
+                const discountBilling = isAnnual && annualPaymentSchedule === 'upfront' ? 'annual' : 'monthly';
                 const isFlowTwoBundle = document.body.classList.contains('flow-two-bundle');
+                const hasRequiredProducts = Boolean(selectedAddOns['hr'] && selectedAddOns['payroll']);
 
-                if (isFlowTwoBundle) {
-                    const includedHrCost = addOnPricing['hr'][baseBilling] * userCount * (isAnnual ? 12 : 1);
-                    const includedPayrollCost = addOnPricing['payroll'][baseBilling] * userCount * (isAnnual ? 12 : 1);
-                    const discountableSubtotal = basePlanSubtotal + includedHrCost + includedPayrollCost;
+                if (isFlowTwoBundle && hasRequiredProducts) {
+                    const bundledAddOnTypes = ['hr', 'payroll'];
+                    const bundledAddOnSubtotal = bundledAddOnTypes.reduce((subtotal, addOnType) => {
+                        const addOnData = selectedAddOns[addOnType];
+                        const multiplier = addOnData.billing === 'annual' ? annualItemMultiplier : 1;
+                        return subtotal + (addOnData.price * userCount * multiplier);
+                    }, 0);
+                    const discountableSubtotal = basePlanSubtotal + bundledAddOnSubtotal;
                     const discountAmount = discountableSubtotal * bundleDiscountRate;
 
                     return {
                         eligible: true,
-                        billing: baseBilling,
+                        billing: discountBilling,
                         amount: discountAmount,
                         gst: discountAmount * 0.1
                     };
                 }
 
-                return { eligible: false, billing: baseBilling, amount: 0, gst: 0 };
+                return { eligible: false, billing: discountBilling, amount: 0, gst: 0 };
             }
 
             function updateOrderSummary() {
-                const selectedOption = document.querySelector('.billing-option.selected');
-                const isAnnual = selectedOption.textContent.includes('Annual');
+                const billingType = getSelectedBillingType();
+                const isAnnual = billingType === 'annual';
+                const annualPaymentSchedule = isAnnual ? getAnnualPaymentSchedule() : 'monthly';
+                const isAnnualPaidMonthly = isAnnual && annualPaymentSchedule === 'monthly';
+                const annualItemMultiplier = isAnnualPaidMonthly ? 1 : 12;
                 const userCount = isAnnual ? parseInt(userCountInput.value) : fixedUserCount;
 
                 // Get pricing based on current plan
@@ -1839,8 +2094,8 @@
                 let basePlanSubtotal;
 
                 if (isAnnual) {
-                    // Annual: Annual price × pre-paid user total × 12
-                    basePlanSubtotal = pricing.annual * userCount * 12;
+                    // Annual pricing can be paid upfront or as monthly instalments.
+                    basePlanSubtotal = pricing.annual * userCount * annualItemMultiplier;
                 } else {
                     // Monthly: Monthly price × user total
                     basePlanSubtotal = pricing.monthly * userCount;
@@ -1858,37 +2113,42 @@
                         addOnCost = 0;
                     } else {
                         if (addOnData.billing === 'annual') {
-                            addOnCost = addOnData.price * userCount * 12;
+                            addOnCost = addOnData.price * userCount * annualItemMultiplier;
                         } else {
                             addOnCost = addOnData.price * userCount;
                         }
                     }
 
-                    if (addOnData.billing === 'annual') {
+                    if (addOnData.billing === 'annual' && !isAnnualPaidMonthly) {
                         annualAddOnSubtotal += addOnCost;
                     } else {
                         monthlyAddOnSubtotal += addOnCost;
                     }
                 }
 
-                const bundleDiscount = getBundleDiscount(isAnnual, userCount, basePlanSubtotal);
+                const bundleDiscount = getBundleDiscount(isAnnual, userCount, basePlanSubtotal, annualPaymentSchedule);
 
                 // Calculate totals for annual and monthly sections
                 let annualTotal = 0;
                 let monthlyTotal = 0;
 
                 if (isAnnual) {
-                    // Base plan is annual
+                    if (isAnnualPaidMonthly) {
+                        monthlyAddOnSubtotal += basePlanSubtotal;
+                    }
+
+                    // Annual add-ons remain upfront; the base plan follows the selected annual payment schedule.
                     const annualBundleDiscount = bundleDiscount.billing === 'annual' ? bundleDiscount.amount : 0;
-                    const annualSubtotal = Math.max(0, basePlanSubtotal + annualAddOnSubtotal - annualBundleDiscount);
+                    const annualSubtotal = Math.max(0, (isAnnualPaidMonthly ? 0 : basePlanSubtotal) + annualAddOnSubtotal - annualBundleDiscount);
                     const annualGst = annualSubtotal * 0.1;
                     annualTotal = annualSubtotal + annualGst;
                 } else {
                     // Base plan is monthly
                     monthlyAddOnSubtotal += basePlanSubtotal;
-                    const monthlyBundleDiscount = bundleDiscount.billing === 'monthly' ? bundleDiscount.amount : 0;
-                    monthlyAddOnSubtotal = Math.max(0, monthlyAddOnSubtotal - monthlyBundleDiscount);
                 }
+
+                const monthlyBundleDiscount = bundleDiscount.billing === 'monthly' ? bundleDiscount.amount : 0;
+                monthlyAddOnSubtotal = Math.max(0, monthlyAddOnSubtotal - monthlyBundleDiscount);
 
                 if (monthlyAddOnSubtotal > 0) {
                     const monthlyGst = monthlyAddOnSubtotal * 0.1;
@@ -1897,7 +2157,9 @@
 
                 // Update the plan name
                 const planName = document.querySelector('.plan-name span:first-child');
-                const currentPlan = document.querySelector('.plan-header h2').textContent;
+                const currentPlan = document.body.classList.contains('flow-two-bundle') ?
+                    getPlanDisplayName(currentPlanType) :
+                    document.querySelector('.plan-header h2').textContent;
 
                 if (isAnnual) {
                     planName.innerHTML = `<strong>${currentPlan}</strong> annual`;
@@ -1915,7 +2177,8 @@
                 const gstAmount = gstLine.querySelector('span:last-child');
 
                 if (isAnnual) {
-                    priceDetail.textContent = `$${pricing.annual.toFixed(2)} per month × ${userCount} pre-paid users`;
+                    const userLabel = isAnnualPaidMonthly ? 'annual users' : 'pre-paid users';
+                    priceDetail.textContent = `$${pricing.annual.toFixed(2)} per month × ${userCount} ${userLabel}`;
                     priceAmount.textContent = `$${basePlanSubtotal.toFixed(2)}`;
                     gstAmount.textContent = `$${(basePlanSubtotal * 0.1).toFixed(2)}`;
                 } else {
@@ -1925,7 +2188,7 @@
                 }
 
                 // Update add-on lines in order summary
-                updateAddOnLines(userCount, isAnnual);
+                updateAddOnLines(userCount, isAnnual, annualPaymentSchedule);
                 updateBundleDiscountLine(bundleDiscount);
 
                 // Update billing sections and totals
@@ -1967,16 +2230,15 @@
                     // Show annual section
                     annualBilling.style.display = 'block';
                     annualTotalAmount.textContent = `$${annualTotal.toFixed(2)}`;
-
-                    if (totalSavings > 0) {
-                        savings.style.display = 'block';
-                        savings.textContent = `Annual savings $${totalSavings.toFixed(0)}`;
-                    } else {
-                        savings.style.display = 'none';
-                    }
                 } else {
                     // Hide annual section
                     annualBilling.style.display = 'none';
+                }
+
+                if (totalSavings > 0) {
+                    savings.style.display = 'block';
+                    savings.textContent = `Annual savings $${totalSavings.toFixed(0)}`;
+                } else {
                     savings.style.display = 'none';
                 }
 
@@ -2017,14 +2279,14 @@
                 }
 
                 const discountLine = document.createElement('div');
-                discountLine.className = 'summary-line bundle-summary-line';
+                discountLine.className = 'summary-line bundle-summary-line discount-line';
                 discountLine.innerHTML = `
-                    <span>All-in-one discount (10%)</span>
+                    <span>Bundle discount (10%)</span>
                     <span>-$${bundleDiscount.amount.toFixed(2)}</span>
                 `;
 
                 const discountGstLine = document.createElement('div');
-                discountGstLine.className = 'summary-line bundle-summary-line';
+                discountGstLine.className = 'summary-line bundle-summary-line discount-gst-line';
                 discountGstLine.innerHTML = `
                     <span>GST 10%</span>
                     <span>-$${bundleDiscount.gst.toFixed(2)}</span>
@@ -2035,9 +2297,11 @@
             }
 
             // Function to update add-on lines in order summary
-            function updateAddOnLines(userCount, isAnnual) {
+            function updateAddOnLines(userCount, isAnnual, annualPaymentSchedule) {
                 const orderSummary = document.querySelector('.order-summary');
                 const promoCodeDiv = document.querySelector('.promo-code');
+                const annualItemsPaidMonthly = isAnnual && annualPaymentSchedule === 'monthly';
+                const annualItemMultiplier = annualItemsPaidMonthly ? 1 : 12;
 
                 // Remove existing add-on lines
                 const existingAddOnLines = orderSummary.querySelectorAll('.add-on-summary-line');
@@ -2052,7 +2316,7 @@
 
                     // Create plan name line for add-on
                     const addOnNameLine = document.createElement('div');
-                    addOnNameLine.className = 'summary-line add-on-summary-line';
+                    addOnNameLine.className = 'summary-line add-on-summary-line add-on-name-line';
 
                     // Check if add-on is free with Best plan - if so, don't show billing schedule
                     let displayName;
@@ -2070,7 +2334,7 @@
 
                     // Create pricing line for add-on
                     const addOnPriceLine = document.createElement('div');
-                    addOnPriceLine.className = 'summary-line add-on-summary-line';
+                    addOnPriceLine.className = 'summary-line add-on-summary-line add-on-price-line';
 
                     // Check if messaging is free with Best plan
                     if (addOnType === 'messaging' && currentPlanType === 'best') {
@@ -2087,9 +2351,10 @@
                         `;
                     } else {
                         if (addOnData.billing === 'annual') {
-                            addOnCost = addOnData.price * userCount * 12;
+                            addOnCost = addOnData.price * userCount * annualItemMultiplier;
+                            const userLabel = annualItemsPaidMonthly ? 'annual users' : 'pre-paid users';
                             addOnPriceLine.innerHTML = `
-                                <span>$${addOnData.price.toFixed(2)} per month × ${userCount} pre-paid users</span>
+                                <span>$${addOnData.price.toFixed(2)} per month × ${userCount} ${userLabel}</span>
                                 <span>$${addOnCost.toFixed(2)}</span>
                             `;
                         } else {
@@ -2108,7 +2373,7 @@
                     // Only add GST line if the add-on has a cost (not free)
                     if (addOnCost > 0) {
                         const addOnGstLine = document.createElement('div');
-                        addOnGstLine.className = 'summary-line add-on-summary-line';
+                        addOnGstLine.className = 'summary-line add-on-summary-line add-on-gst-line';
                         const addOnGst = addOnCost * 0.1;
                         addOnGstLine.innerHTML = `
                             <span>GST 10%</span>
