@@ -1723,6 +1723,12 @@
                 button.addEventListener('click', function() {
                     const previousPlan = currentPlanType;
                     const selectedPlan = this.getAttribute('data-plan');
+                    const wasFlowTwoBundle = document.body.classList.contains('flow-two-bundle');
+
+                    if (wasFlowTwoBundle) {
+                        clearSelectedAddOns();
+                        selectBillingSchedule('annual');
+                    }
 
                     // Before switching plans, handle add-on persistence logic
                     handlePlanSwitchAddOns(previousPlan, selectedPlan);
@@ -1730,23 +1736,7 @@
                     currentPlanType = selectedPlan; // Update current plan type
 
                     // Update the main plan section based on selection
-                    const planHeader = document.querySelector('.plan-header h2');
-                    const planDescription = document.querySelector('.plan-description');
-
-                    switch(selectedPlan) {
-                        case 'good':
-                            planHeader.textContent = 'Lite';
-                            planDescription.textContent = 'Ideal for small teams getting started with workforce management.';
-                            break;
-                        case 'better':
-                            planHeader.textContent = 'Core';
-                            planDescription.textContent = 'Great for growing businesses needing more control and efficiency.';
-                            break;
-                        case 'best':
-                            planHeader.textContent = 'Pro';
-                            planDescription.textContent = 'Built for large organizations with complex workforce needs.';
-                            break;
-                    }
+                    updatePlanDetails(selectedPlan);
 
                     // Update pricing display
                     updatePricingDisplay();
