@@ -439,6 +439,12 @@
             background-color: white;
         }
 
+        .add-on-billing-option.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            background-color: #f7f7f9;
+        }
+
         .add-on-billing-option .billing-type {
             font-weight: 500;
             margin-bottom: 4px;
@@ -1186,7 +1192,7 @@
                 <span>$156.00</span>
             </div>
             <div class="summary-line product-bundle-line base-bundle-line" style="display: none;">
-                <span>BUNDLE (15% off)</span>
+                <span>Bundle promo applied</span>
                 <span></span>
             </div>
 
@@ -2054,6 +2060,7 @@
                     option.addEventListener('click', function() {
                         // Only allow changes if add-on is selected
                         if (!item.classList.contains('selected')) return;
+                        if (this.classList.contains('disabled')) return;
 
                         const billingType = this.getAttribute('data-billing');
 
@@ -2076,18 +2083,29 @@
             // Function to update add-on billing state based on base plan
             function updateAddOnBillingState() {
                 addOnItems.forEach(item => {
+                    const addOnType = item.getAttribute('data-addon');
                     const annualOption = item.querySelector('[data-billing="annual"]');
                     const monthlyOption = item.querySelector('[data-billing="monthly"]');
+                    const isAnnualDisabled = shouldDisableAnnualAddOnBilling(addOnType);
 
                     if (annualOption) {
-                        // Add-on billing can be annual or monthly regardless of base plan.
-                        annualOption.style.opacity = '1';
-                        annualOption.style.cursor = 'pointer';
+                        annualOption.classList.toggle('disabled', isAnnualDisabled);
+                        annualOption.setAttribute('aria-disabled', String(isAnnualDisabled));
                     }
 
                     if (monthlyOption) {
-                        monthlyOption.style.opacity = '1';
-                        monthlyOption.style.cursor = 'pointer';
+                        monthlyOption.classList.remove('disabled');
+                        monthlyOption.setAttribute('aria-disabled', 'false');
+                    }
+
+                    if (isAnnualDisabled) {
+                        annualOption?.classList.remove('selected');
+                        monthlyOption?.classList.add('selected');
+
+                        if (selectedAddOns[addOnType]) {
+                            selectedAddOns[addOnType].billing = 'monthly';
+                            selectedAddOns[addOnType].price = addOnPricing[addOnType].monthly;
+                        }
                     }
                 });
             }
@@ -2176,6 +2194,26 @@
                 return currentPlanType === 'best' && (addOnType === 'messaging' || addOnType === 'analytics');
             }
 
+            function isBundleDiscountLine(lineId) {
+                return lineId === 'base-plan' || lineId === 'hr' || lineId === 'payroll';
+            }
+
+            function isMonthlyBundleMode() {
+                return document.body.classList.contains('flow-two-bundle') && getSelectedBillingType() === 'monthly';
+            }
+
+            function shouldDisableAnnualAddOnBilling(addOnType) {
+                return isMonthlyBundleMode() && !isBundleDiscountLine(addOnType);
+            }
+
+            function getAddOnUnitPrice(addOnType, addOnData, isFlowTwoBundle) {
+                if (isFlowTwoBundle && isBundleDiscountLine(addOnType)) {
+                    return addOnPricing[addOnType].monthly;
+                }
+
+                return addOnData.price;
+            }
+
             function getSelectedAddOnEntries(isFlowTwoBundle) {
                 const addOnEntries = Object.entries(selectedAddOns);
 
@@ -2219,9 +2257,7 @@
 
                 for (const [addOnType, addOnData] of getSelectedAddOnEntries(isFlowTwoBundle)) {
                     const isFree = isFreeIncludedAddOn(addOnType);
-                    const unitPrice = isFlowTwoBundle || isAnnual ?
-                        addOnPricing[addOnType].monthly :
-                        addOnData.price;
+                    const unitPrice = getAddOnUnitPrice(addOnType, addOnData, isFlowTwoBundle);
 
                     productLines.push({
                         id: addOnType,
@@ -2238,7 +2274,10 @@
                 const subtotal = productLines.reduce((total, line) => total + line.subtotal, 0);
                 const gst = subtotal * 0.1;
                 const promoEligible = isFlowTwoBundle || Boolean(selectedAddOns['hr'] && selectedAddOns['payroll']);
-                const promoDiscount = promoEligible ? subtotal * bundleDiscountRate : 0;
+                const promoSubtotal = promoEligible ?
+                    productLines.reduce((total, line) => isBundleDiscountLine(line.id) ? total + line.subtotal : total, 0) :
+                    0;
+                const promoDiscount = promoSubtotal * bundleDiscountRate;
                 const totalBeforePromo = subtotal + gst;
                 const totalAfterPromo = totalBeforePromo - promoDiscount;
                 const monthlyInstallment = mode === 'annual-monthly' ? totalAfterPromo / 12 : null;
@@ -2306,7 +2345,7 @@
                 pricingLine.querySelector('span:first-child').textContent = getLinePriceDescription(baseLine, summary);
                 pricingLine.querySelector('span:last-child').textContent = formatMoney(baseLine.subtotal);
                 gstLine.querySelector('span:last-child').textContent = formatMoney(baseLine.subtotal * 0.1);
-                baseBundleLine.style.display = 'none';
+                baseBundleLine.style.display = summary.promo.eligible && isBundleDiscountLine(baseLine.id) ? 'flex' : 'none';
 
                 updateAddOnLines(addOnLines, summary);
                 updateBillingSections(summary);
@@ -2408,6 +2447,16 @@
                             <span>${formatMoney(line.subtotal * 0.1)}</span>
                         `;
                         orderSummary.insertBefore(addOnGstLine, dynamicAnchor);
+                    }
+
+                    if (summary.promo.eligible && isBundleDiscountLine(line.id)) {
+                        const addOnPromoLine = document.createElement('div');
+                        addOnPromoLine.className = 'summary-line add-on-summary-line product-bundle-line';
+                        addOnPromoLine.innerHTML = `
+                            <span>Bundle promo applied</span>
+                            <span></span>
+                        `;
+                        orderSummary.insertBefore(addOnPromoLine, dynamicAnchor);
                     }
                 }
             }
