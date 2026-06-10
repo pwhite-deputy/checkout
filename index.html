@@ -513,13 +513,23 @@
             margin-top: 1px;
         }
 
+        .add-button,
         .remove-button {
             background: none;
             border: none;
             color: #6200ea;
             cursor: pointer;
-            font-size: 0.875rem;
-            text-decoration: underline;
+            font: inherit;
+        }
+
+        .add-button,
+        .add-on-item.selected .remove-button {
+            background: #f2effb;
+            border-radius: 8px;
+            color: #3f18c8;
+            font-size: 1rem;
+            padding: 10px 22px;
+            text-decoration: none;
         }
 
         .add-on-item.selected {
@@ -548,8 +558,7 @@
             max-width: 760px;
         }
 
-        .add-on-item.selected .add-on-price,
-        .add-on-item.selected .learn-more {
+        .add-on-item.selected .add-on-price {
             display: none;
         }
 
@@ -652,6 +661,10 @@
             margin-top: 0;
         }
 
+        .add-on-item.free-included .add-on-note {
+            display: none !important;
+        }
+
         .add-on-item.selected .add-on-note::before {
             content: "Users";
             background: none;
@@ -664,15 +677,6 @@
             justify-content: flex-start;
             margin: 0 0 8px;
             width: auto;
-        }
-
-        .add-on-item.selected .remove-button {
-            background: #f2effb;
-            border-radius: 8px;
-            color: #3f18c8;
-            font-size: 1rem;
-            padding: 10px 22px;
-            text-decoration: none;
         }
 
         .order-summary {
@@ -779,6 +783,23 @@
         .summary-dynamic-anchor {
             height: 0;
             overflow: hidden;
+        }
+
+        .promo-code-line {
+            border-top: 1px solid #ebe8ef;
+            margin: 26px 0 0;
+            padding: 22px 0;
+        }
+
+        .promo-code-button {
+            background: none;
+            border: none;
+            color: #3f18c8;
+            cursor: pointer;
+            font: inherit;
+            font-size: 1rem;
+            padding: 0;
+            text-align: left;
         }
 
         .billing-info {
@@ -1235,8 +1256,7 @@
                         </div>
                     </div>
                     <div class="add-on-actions">
-                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
-                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="add-button">Add</button>
                         <button class="remove-button" style="display: none;">Remove</button>
                     </div>
                 </div>
@@ -1265,8 +1285,7 @@
                         </div>
                     </div>
                     <div class="add-on-actions">
-                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
-                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="add-button">Add</button>
                         <button class="remove-button" style="display: none;">Remove</button>
                     </div>
                 </div>
@@ -1295,8 +1314,7 @@
                         </div>
                     </div>
                     <div class="add-on-actions">
-                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
-                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="add-button">Add</button>
                         <button class="remove-button" style="display: none;">Remove</button>
                     </div>
                 </div>
@@ -1325,8 +1343,7 @@
                         </div>
                     </div>
                     <div class="add-on-actions">
-                        <a href="#" style="color: #6200ea; text-decoration: none; margin-right: 16px;" class="learn-more">Learn more</a>
-                        <button style="background: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px;" class="add-button">Add</button>
+                        <button class="add-button">Add</button>
                         <button class="remove-button" style="display: none;">Remove</button>
                     </div>
                 </div>
@@ -1354,6 +1371,10 @@
             </div>
 
             <div class="summary-dynamic-anchor" aria-hidden="true"></div>
+
+            <div class="promo-code-line">
+                <button class="promo-code-button" type="button">Enter promotion code</button>
+            </div>
 
             <!-- Monthly billing info -->
             <div class="billing-info monthly-billing" style="display: none;">
@@ -2127,8 +2148,11 @@
                     const addOnType = item.getAttribute('data-addon');
                     const addOnNote = item.querySelector('.add-on-note');
                     const addOnData = selectedAddOns[addOnType];
+                    const isFreeIncluded = isFreeIncludedAddOn(addOnType);
 
-                    if (!addOnNote || !item.classList.contains('selected') || !addOnData) return;
+                    item.classList.toggle('free-included', isFreeIncluded);
+
+                    if (!addOnNote || !item.classList.contains('selected') || !addOnData || isFreeIncluded) return;
 
                     const isAnnual = addOnData.billing === 'annual';
                     const userCount = isAnnual ? parseInt(userCountInput.value, 10) : fixedUserCount;
@@ -2378,12 +2402,8 @@
                 return lineId === 'base-plan' || lineId === 'hr' || lineId === 'payroll';
             }
 
-            function isMonthlyBundleMode() {
-                return document.body.classList.contains('flow-two-bundle') && getSelectedBillingType() === 'monthly';
-            }
-
-            function shouldDisableAnnualAddOnBilling(addOnType) {
-                return isMonthlyBundleMode() && !isBundleDiscountLine(addOnType);
+            function shouldDisableAnnualAddOnBilling() {
+                return getSelectedBillingType() !== 'annual';
             }
 
             function getAddOnUnitPrice(addOnType, addOnData, isFlowTwoBundle, isAnnual) {
@@ -2562,7 +2582,7 @@
                 }
 
                 if (line.billingCycle === 'annual') {
-                    return `${formatMoney(line.unitPrice)} per month × ${line.userCount} pre-paid users × 12 months`;
+                    return `${formatMoney(line.unitPrice)} per month × ${line.userCount} pre-paid users`;
                 }
 
                 return `${formatMoney(line.unitPrice)} per month × ${line.userCount} users`;
@@ -2576,12 +2596,14 @@
                 const pricingLine = document.querySelector('.pricing-line');
                 const gstLine = document.querySelector('.summary-gst-line');
                 const baseBundleLine = document.querySelector('.base-bundle-line');
+                const promoCodeLine = document.querySelector('.promo-code-line');
 
                 planName.innerHTML = `<strong>${baseLine.name}</strong> ${summary.billingModeLabel}`;
                 pricingLine.querySelector('span:first-child').textContent = getLinePriceDescription(baseLine, summary);
                 pricingLine.querySelector('span:last-child').textContent = formatMoney(baseLine.subtotal);
                 gstLine.querySelector('span:last-child').textContent = formatMoney(baseLine.subtotal * 0.1);
                 baseBundleLine.style.display = summary.promo.eligible && isBundleDiscountLine(baseLine.id) ? 'flex' : 'none';
+                promoCodeLine.style.display = summary.isFlowTwoBundle ? 'none' : 'block';
 
                 updateAddOnLines(addOnLines, summary);
                 updateBillingSections(summary);
