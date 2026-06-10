@@ -33,6 +33,46 @@
             color: #333;
         }
 
+        .page-bundle-banner {
+            display: none;
+            background: #4518c8;
+            color: white;
+            min-height: 58px;
+            padding: 0 24px;
+        }
+
+        .page-bundle-banner.visible {
+            display: flex;
+        }
+
+        .page-bundle-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 26px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .page-bundle-badge {
+            background: rgba(255, 255, 255, 0.26);
+            border-radius: 999px;
+            padding: 8px 18px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .page-bundle-link {
+            color: white;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            white-space: nowrap;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -1113,6 +1153,13 @@
         }
 
         @media (max-width: 960px) {
+            .page-bundle-content {
+                flex-wrap: wrap;
+                gap: 8px 12px;
+                padding: 10px 0;
+                text-align: center;
+            }
+
             .modal-content {
                 width: calc(100% - 24px);
                 min-height: calc(100vh - 24px);
@@ -1140,6 +1187,14 @@
         <h1>Subscribe</h1>
         <button class="cancel-button">Cancel</button>
     </header>
+
+    <div class="page-bundle-banner" aria-live="polite">
+        <div class="page-bundle-content">
+            <span class="page-bundle-badge">Bundle deal</span>
+            <span>Save 15% when you bundle any plan with HR &amp; Payroll.</span>
+            <a href="#" class="page-bundle-link">Apply bundle</a>
+        </div>
+    </div>
 
     <div class="container">
         <div class="main-content">
@@ -1600,6 +1655,8 @@
             const modalClose = document.getElementById('modalClose');
             const planButtons = document.querySelectorAll('[data-plan]');
             const bundleBanner = document.querySelector('.bundle-banner');
+            const pageBundleBanner = document.querySelector('.page-bundle-banner');
+            const pageBundleLink = document.querySelector('.page-bundle-link');
             const bundlePlanCards = document.querySelectorAll('[data-bundle-plan]');
 
             function clearSelectedAddOns() {
@@ -1628,6 +1685,14 @@
 
             function setFlowTwoBundleMode(isEnabled) {
                 document.body.classList.toggle('flow-two-bundle', isEnabled);
+            }
+
+            function updatePageBundleBanner() {
+                const shouldShowBundlePrompt =
+                    !document.body.classList.contains('flow-two-bundle') &&
+                    Boolean(selectedAddOns['hr'] && selectedAddOns['payroll']);
+
+                pageBundleBanner.classList.toggle('visible', shouldShowBundlePrompt);
             }
 
             function getSelectedBillingType() {
@@ -1850,19 +1915,22 @@
                 updateIncludedProductPrices();
             }
 
-            function applyBundleDeal() {
-                applyFlowTwoBundleDeal();
+            function applyBundleDeal(options = {}) {
+                applyFlowTwoBundleDeal(options);
             }
 
-            function applyFlowTwoBundleDeal() {
+            function applyFlowTwoBundleDeal(options = {}) {
+                const targetPlanType = options.planType || 'better';
+                const targetBillingType = options.billingType || 'monthly';
+
                 setFlowTwoBundleMode(true);
                 clearSelectedAddOns();
                 updateFlowTwoAddOnCopy();
 
                 document.querySelector('.plan-header h2').textContent = 'All-in-one bundle';
                 document.querySelector('.plan-description').textContent = 'Everything you need to get started with scheduling and time tracking.';
-                selectBillingSchedule('monthly');
-                setFlowTwoBasePlan('better');
+                selectBillingSchedule(targetBillingType);
+                setFlowTwoBasePlan(targetPlanType);
                 syncBundleIncludedAddOns();
                 document.querySelector('.add-ons-section h3').textContent = "Unlock Deputy's full capabilities with our add-on solutions";
 
@@ -1873,6 +1941,14 @@
             bundleBanner.addEventListener('click', function(e) {
                 e.preventDefault();
                 applyBundleDeal();
+            });
+
+            pageBundleLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                applyBundleDeal({
+                    planType: currentPlanType,
+                    billingType: getSelectedBillingType()
+                });
             });
 
             bundlePlanCards.forEach(card => {
@@ -2589,6 +2665,7 @@
             function updateOrderSummary() {
                 updateSelectedAddOnUserNotes();
                 const summary = calculateCheckoutPricing();
+                updatePageBundleBanner();
                 const [baseLine, ...addOnLines] = summary.productLines;
                 const planName = document.querySelector('.plan-name span:first-child');
                 const pricingLine = document.querySelector('.pricing-line');
