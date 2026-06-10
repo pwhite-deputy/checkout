@@ -568,7 +568,7 @@
         }
 
         .add-on-item.selected .add-on-billing-options {
-            gap: 10px;
+            gap: 16px;
             margin: 26px 0 24px;
         }
 
@@ -582,64 +582,62 @@
         }
 
         .add-on-item.selected .add-on-billing-option {
-            border: 1px solid #d9d9e4;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            min-height: 76px;
-            padding: 18px 20px;
+            min-height: auto;
+            padding: 16px;
             text-align: left;
             display: block;
         }
 
         .add-on-item.selected .add-on-billing-option.selected {
-            border-color: #4c22d6;
+            border-color: #6200ea;
         }
 
         .add-on-item.selected .add-on-billing-option.disabled {
-            opacity: 1;
-            color: #a8a9ba;
-            background-color: #fff;
+            opacity: 0.45;
+            background-color: #f7f7f9;
         }
 
         .add-on-item.selected .add-on-billing-option .billing-type {
             justify-content: flex-start;
-            color: #1f1a44;
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin: 0 0 8px;
+            color: #333;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0 0 4px;
         }
 
         .add-on-item.selected .add-on-billing-option .billing-type::before {
-            content: "";
-            width: 18px;
-            height: 18px;
-            border: 1px solid #d5d5df;
-            border-radius: 50%;
-            box-sizing: border-box;
-            margin-right: 8px;
+            content: none;
         }
 
         .add-on-item.selected .add-on-billing-option.selected .billing-type::before {
-            border: 6px solid #4c22d6;
+            content: none;
         }
 
         .add-on-item.selected .add-on-billing-option.disabled .billing-type {
-            color: #b0b1c0;
+            color: #333;
         }
 
         .add-on-item.selected .add-on-save-badge {
-            display: none;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 8px;
         }
 
         .add-on-item.selected .add-on-billing-option .billing-price {
-            color: #1f1a44;
+            color: #333;
             display: inline;
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-left: 44px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-left: 0;
         }
 
         .add-on-item.selected .add-on-billing-option.disabled .billing-price {
-            color: #aeb0c0;
+            color: #333;
         }
 
         .add-on-item.selected .add-on-billing-option .billing-detail {
@@ -650,7 +648,7 @@
         }
 
         .add-on-item.selected .add-on-billing-option.disabled .billing-detail {
-            color: #aeb0c0;
+            color: #666;
         }
 
         .add-on-item.selected .add-on-note {
@@ -2496,7 +2494,7 @@
 
                 const subtotal = productLines.reduce((total, line) => total + line.subtotal, 0);
                 const gst = subtotal * 0.1;
-                const promoEligible = isFlowTwoBundle || Boolean(selectedAddOns['hr'] && selectedAddOns['payroll']);
+                const promoEligible = isFlowTwoBundle;
                 const promoSubtotal = promoEligible ?
                     productLines.reduce((total, line) => line.discountEligible ? total + line.subtotal : total, 0) :
                     0;
