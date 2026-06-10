@@ -522,6 +522,159 @@
             text-decoration: underline;
         }
 
+        .add-on-item.selected {
+            border-color: #e2e2ea;
+            display: grid;
+            grid-template-columns: 1fr;
+            align-items: stretch;
+            padding: 28px 32px 30px;
+        }
+
+        .add-on-item.selected .add-on-info {
+            width: 100%;
+        }
+
+        .add-on-item.selected .add-on-info h4 {
+            color: #1f1a44;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .add-on-item.selected .add-on-info p {
+            color: #1f1a44;
+            font-size: 1rem;
+            line-height: 1.45;
+            max-width: 760px;
+        }
+
+        .add-on-item.selected .add-on-price,
+        .add-on-item.selected .learn-more {
+            display: none;
+        }
+
+        .add-on-item.selected .add-on-actions {
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .add-on-item.selected .add-on-billing-options {
+            gap: 10px;
+            margin: 26px 0 24px;
+        }
+
+        .add-on-item.selected .add-on-billing-options::before {
+            content: "Billing schedule";
+            grid-column: 1 / -1;
+            color: #1f1a44;
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .add-on-item.selected .add-on-billing-option {
+            border: 1px solid #d9d9e4;
+            border-radius: 8px;
+            min-height: 76px;
+            padding: 18px 20px;
+            text-align: left;
+            display: block;
+        }
+
+        .add-on-item.selected .add-on-billing-option.selected {
+            border-color: #4c22d6;
+        }
+
+        .add-on-item.selected .add-on-billing-option.disabled {
+            opacity: 1;
+            color: #a8a9ba;
+            background-color: #fff;
+        }
+
+        .add-on-item.selected .add-on-billing-option .billing-type {
+            justify-content: flex-start;
+            color: #1f1a44;
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin: 0 0 8px;
+        }
+
+        .add-on-item.selected .add-on-billing-option .billing-type::before {
+            content: "";
+            width: 18px;
+            height: 18px;
+            border: 1px solid #d5d5df;
+            border-radius: 50%;
+            box-sizing: border-box;
+            margin-right: 8px;
+        }
+
+        .add-on-item.selected .add-on-billing-option.selected .billing-type::before {
+            border: 6px solid #4c22d6;
+        }
+
+        .add-on-item.selected .add-on-billing-option.disabled .billing-type {
+            color: #b0b1c0;
+        }
+
+        .add-on-item.selected .add-on-save-badge {
+            display: none;
+        }
+
+        .add-on-item.selected .add-on-billing-option .billing-price {
+            color: #1f1a44;
+            display: inline;
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-left: 44px;
+        }
+
+        .add-on-item.selected .add-on-billing-option.disabled .billing-price {
+            color: #aeb0c0;
+        }
+
+        .add-on-item.selected .add-on-billing-option .billing-detail {
+            color: #666;
+            display: inline;
+            font-size: 0.875rem;
+            margin-left: 4px;
+        }
+
+        .add-on-item.selected .add-on-billing-option.disabled .billing-detail {
+            color: #aeb0c0;
+        }
+
+        .add-on-item.selected .add-on-note {
+            color: #1f1a44;
+            display: block !important;
+            font-size: 1rem;
+            line-height: 1.45;
+            margin-top: 0;
+        }
+
+        .add-on-item.selected .add-on-note::before {
+            content: "Users";
+            background: none;
+            border-radius: 0;
+            color: #1f1a44;
+            display: block;
+            font-size: 1.125rem;
+            font-weight: 700;
+            height: auto;
+            justify-content: flex-start;
+            margin: 0 0 8px;
+            width: auto;
+        }
+
+        .add-on-item.selected .remove-button {
+            background: #f2effb;
+            border-radius: 8px;
+            color: #3f18c8;
+            font-size: 1rem;
+            padding: 10px 22px;
+            text-decoration: none;
+        }
+
         .order-summary {
             background: #fbfbfd;
             border-radius: 12px;
@@ -541,8 +694,8 @@
         }
 
         .currency-badge {
-            background-color: #6200ea;
-            color: white;
+            background-color: #e0e0e0;
+            color: #333;
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 0.875rem;
@@ -1424,6 +1577,7 @@
             // Modal handling
             const modal = document.getElementById('planModal');
             const changePlanLink = document.querySelector('.change-plan');
+            const cancelButton = document.querySelector('.cancel-button');
             const modalClose = document.getElementById('modalClose');
             const planButtons = document.querySelectorAll('[data-plan]');
             const bundleBanner = document.querySelector('.bundle-banner');
@@ -1715,6 +1869,11 @@
                 modal.style.display = 'flex';
             });
 
+            // Open modal when "Cancel" is clicked
+            cancelButton.addEventListener('click', function() {
+                modal.style.display = 'flex';
+            });
+
             // Close modal when X is clicked
             modalClose.addEventListener('click', function() {
                 modal.style.display = 'none';
@@ -1737,6 +1896,8 @@
                     if (wasFlowTwoBundle) {
                         clearSelectedAddOns();
                         selectBillingSchedule('annual');
+                    } else if (selectedPlan !== 'best') {
+                        clearSelectedAddOns();
                     }
 
                     // Before switching plans, handle add-on persistence logic
@@ -1960,6 +2121,22 @@
 
             // Add-on functionality
             const addOnItems = document.querySelectorAll('.add-on-item');
+
+            function updateSelectedAddOnUserNotes() {
+                addOnItems.forEach(item => {
+                    const addOnType = item.getAttribute('data-addon');
+                    const addOnNote = item.querySelector('.add-on-note');
+                    const addOnData = selectedAddOns[addOnType];
+
+                    if (!addOnNote || !item.classList.contains('selected') || !addOnData) return;
+
+                    const isAnnual = addOnData.billing === 'annual';
+                    const userCount = isAnnual ? parseInt(userCountInput.value, 10) : fixedUserCount;
+                    addOnNote.textContent = isAnnual ?
+                        `${userCount} pre-paid users` :
+                        `${userCount} users in your account`;
+                });
+            }
 
             addOnItems.forEach(item => {
                 const addOnType = item.getAttribute('data-addon');
@@ -2392,6 +2569,7 @@
             }
 
             function updateOrderSummary() {
+                updateSelectedAddOnUserNotes();
                 const summary = calculateCheckoutPricing();
                 const [baseLine, ...addOnLines] = summary.productLines;
                 const planName = document.querySelector('.plan-name span:first-child');
