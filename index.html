@@ -89,6 +89,14 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
+        .plan-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
         .plan-header h2 {
             margin: 0 0 8px 0;
             font-size: 1.5rem;
@@ -97,7 +105,7 @@
 
         .plan-description {
             color: #666;
-            margin-bottom: 24px;
+            margin: 0;
         }
 
         .bundle-included-products {
@@ -300,6 +308,17 @@
         .billing-option .price {
             font-size: 1.25rem;
             font-weight: 500;
+        }
+
+        .billing-option .price-original {
+            color: #1f1a44;
+            margin-right: 4px;
+            text-decoration: line-through;
+        }
+
+        .billing-option .price-current {
+            color: #1f1a44;
+            font-weight: 700;
         }
 
         .billing-option .price-detail {
@@ -934,12 +953,17 @@
         }
 
         .change-plan {
+            background: #f2effb;
+            border-radius: 8px;
             color: #6200ea;
-            font-size: 0.875rem;
+            flex: 0 0 auto;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
             text-decoration: none;
-            margin-top: 16px;
             display: inline-block;
+            padding: 10px 22px;
+            white-space: nowrap;
         }
 
         /* Modal Styles */
@@ -1179,6 +1203,10 @@
             .plan-card {
                 min-height: auto;
             }
+
+            .plan-header {
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -1200,8 +1228,11 @@
         <div class="main-content">
             <div class="plan-section">
                 <div class="plan-header">
-                    <h2>Pro</h2>
-                    <p class="plan-description">Built for large organizations with complex workforce needs.</p>
+                    <div class="plan-title-copy">
+                        <h2>Pro</h2>
+                        <p class="plan-description">Built for large organizations with complex workforce needs.</p>
+                    </div>
+                    <a href="#" class="change-plan">Change plan</a>
                 </div>
                 <div class="bundle-included-products">
                     <h3 class="bundle-section-title">Choose your base plan</h3>
@@ -1277,8 +1308,6 @@
                     <div class="fixed-users" style="display: none;">
                         <span class="fixed-user-count">5 users</span>
                     </div>
-
-                    <a href="#" class="change-plan">Change plan</a>
                 </div>
             </div>
 
@@ -1724,12 +1753,16 @@
                 return getBundleUnitPrice(planType, billingType);
             }
 
-            function getBundleUnitPrice(planType, billingType) {
-                const listPrice =
+            function getBundleListUnitPrice(planType, billingType) {
+                return (
                     planPricing[planType][billingType] +
                     addOnPricing['hr'][billingType] +
-                    addOnPricing['payroll'][billingType];
+                    addOnPricing['payroll'][billingType]
+                );
+            }
 
+            function getBundleUnitPrice(planType, billingType) {
+                const listPrice = getBundleListUnitPrice(planType, billingType);
                 return getPromoAdjustedAmount(listPrice, true);
             }
 
@@ -2057,9 +2090,17 @@
                 const isBundleMode = document.body.classList.contains('flow-two-bundle');
                 const annualDisplayPrice = getDisplayPlanPrice(currentPlanType, 'annual');
                 const monthlyDisplayPrice = getDisplayPlanPrice(currentPlanType, 'monthly');
+                const annualListPrice = getBundleListUnitPrice(currentPlanType, 'annual');
+                const monthlyListPrice = getBundleListUnitPrice(currentPlanType, 'monthly');
 
-                annualPriceEl.innerHTML = `$${annualDisplayPrice.toFixed(2)} <span class="price-detail">per user / month</span>`;
-                monthlyPriceEl.innerHTML = `$${monthlyDisplayPrice.toFixed(2)} <span class="price-detail">per user / month</span>`;
+                if (isBundleMode) {
+                    annualPriceEl.innerHTML = `<span class="price-original">${formatMoney(annualListPrice)}</span> <span class="price-current">${formatMoney(annualDisplayPrice)}</span> <span class="price-detail">per user / month</span>`;
+                    monthlyPriceEl.innerHTML = `<span class="price-original">${formatMoney(monthlyListPrice)}</span> <span class="price-current">${formatMoney(monthlyDisplayPrice)}</span> <span class="price-detail">per user / month</span>`;
+                } else {
+                    annualPriceEl.innerHTML = `${formatMoney(annualDisplayPrice)} <span class="price-detail">per user / month</span>`;
+                    monthlyPriceEl.innerHTML = `${formatMoney(monthlyDisplayPrice)} <span class="price-detail">per user / month</span>`;
+                }
+
                 saveBadgeEl.textContent = isBundleMode ? 'BUNDLE 15%' : `SAVE ${pricing.discount}%`;
                 monthlySaveBadgeEl.style.display = isBundleMode ? 'inline-block' : 'none';
             }
