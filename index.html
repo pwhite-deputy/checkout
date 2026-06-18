@@ -834,7 +834,10 @@
         .product-bundle-line span,
         .product-bundle-line span:last-child {
             color: #008a52;
-            text-align: left;
+        }
+
+        .product-bundle-line span:last-child {
+            text-align: right;
         }
 
         .summary-dynamic-anchor {
@@ -921,6 +924,14 @@
             text-align: right;
             margin: 22px 0 0 0;
             padding: 10px 12px;
+        }
+
+        .savings.bundle-savings-banner {
+            color: #00857f;
+            font-size: 1rem;
+            line-height: 1.4;
+            padding: 16px 18px;
+            text-align: center;
         }
 
         .continue-button {
@@ -2533,6 +2544,18 @@
                 return line.free ? 0 : line.unitPrice * line.userCount * line.months;
             }
 
+            function getLineGst(line) {
+                return line.subtotal * 0.1;
+            }
+
+            function getLinePromoAmount(line, promoEligible) {
+                if (!promoEligible || !line.discountEligible || line.free) {
+                    return 0;
+                }
+
+                return (line.subtotal + getLineGst(line)) * bundleDiscountRate;
+            }
+
             function getLineBillingCycle(line, isAnnual) {
                 if (line.id === 'base-plan' || isBundleDiscountLine(line.id)) {
                     return isAnnual ? 'annual' : 'monthly';
@@ -2548,7 +2571,7 @@
                     return addOnEntries;
                 }
 
-                const bundleOrder = ['payroll', 'hr'];
+                const bundleOrder = ['hr', 'payroll'];
                 return addOnEntries.sort(([firstType], [secondType]) => {
                     const firstIndex = bundleOrder.indexOf(firstType);
                     const secondIndex = bundleOrder.indexOf(secondType);
@@ -2605,44 +2628,38 @@
                     });
                 }
 
+                const promoEligible = isFlowTwoBundle;
+
                 productLines.forEach(line => {
                     line.subtotal = getLineTotal(line);
+                    line.gst = getLineGst(line);
+                    line.promoAmount = getLinePromoAmount(line, promoEligible);
                 });
 
                 const subtotal = productLines.reduce((total, line) => total + line.subtotal, 0);
-                const gst = subtotal * 0.1;
-                const promoEligible = isFlowTwoBundle;
-                const promoSubtotal = promoEligible ?
-                    productLines.reduce((total, line) => line.discountEligible ? total + line.subtotal : total, 0) :
-                    0;
-                const promoDiscount = promoSubtotal * bundleDiscountRate;
+                const gst = productLines.reduce((total, line) => total + line.gst, 0);
+                const promoDiscount = productLines.reduce((total, line) => total + line.promoAmount, 0);
                 const annualSubtotal = productLines
                     .filter(line => line.billingCycle === 'annual')
                     .reduce((total, line) => total + line.subtotal, 0);
                 const monthlySubtotal = productLines
                     .filter(line => line.billingCycle === 'monthly')
                     .reduce((total, line) => total + line.subtotal, 0);
-                const annualPromoSubtotal = promoEligible ?
-                    productLines
-                        .filter(line => line.billingCycle === 'annual' && line.discountEligible)
-                        .reduce((total, line) => total + line.subtotal, 0) :
-                    0;
-                const monthlyPromoSubtotal = promoEligible ?
-                    productLines
-                        .filter(line => line.billingCycle === 'monthly' && line.discountEligible)
-                        .reduce((total, line) => total + line.subtotal, 0) :
-                    0;
                 const annual = {
                     subtotal: annualSubtotal,
                     gst: annualSubtotal * 0.1,
-                    promoAmount: annualPromoSubtotal * bundleDiscountRate
+                    promoAmount: productLines
+                        .filter(line => line.billingCycle === 'annual')
+                        .reduce((total, line) => total + line.promoAmount, 0)
                 };
                 annual.totalBeforePromo = annual.subtotal + annual.gst;
                 annual.totalAfterPromo = annual.totalBeforePromo - annual.promoAmount;
                 const monthly = {
                     subtotal: monthlySubtotal,
                     gst: monthlySubtotal * 0.1,
-                    promoAmount: monthlyPromoSubtotal * bundleDiscountRate
+                    promoAmount: productLines
+                        .filter(line => line.billingCycle === 'monthly')
+                        .reduce((total, line) => total + line.promoAmount, 0)
                 };
                 monthly.totalBeforePromo = monthly.subtotal + monthly.gst;
                 monthly.totalAfterPromo = monthly.totalBeforePromo - monthly.promoAmount;
@@ -2703,6 +2720,18 @@
                 return `${formatMoney(line.unitPrice)} per month × ${line.userCount} users`;
             }
 
+            function formatSavingsProducts(productLines) {
+                const productNames = productLines
+                    .filter(line => line.promoAmount > 0)
+                    .map(line => line.name);
+
+                if (productNames.length <= 1) {
+                    return productNames[0] || '';
+                }
+
+                return `${productNames.slice(0, -1).join(', ')} and ${productNames[productNames.length - 1]}`;
+            }
+
             function updateOrderSummary() {
                 updateSelectedAddOnUserNotes();
                 const summary = calculateCheckoutPricing();
@@ -2717,8 +2746,10 @@
                 planName.innerHTML = `<strong>${baseLine.name}</strong> ${summary.billingModeLabel}`;
                 pricingLine.querySelector('span:first-child').textContent = getLinePriceDescription(baseLine, summary);
                 pricingLine.querySelector('span:last-child').textContent = formatMoney(baseLine.subtotal);
-                gstLine.querySelector('span:last-child').textContent = formatMoney(baseLine.subtotal * 0.1);
-                baseBundleLine.style.display = summary.promo.eligible && isBundleDiscountLine(baseLine.id) ? 'flex' : 'none';
+                gstLine.querySelector('span:last-child').textContent = formatMoney(baseLine.gst);
+                baseBundleLine.querySelector('span:first-child').textContent = 'Bundle promo (15% off)';
+                baseBundleLine.querySelector('span:last-child').textContent = `-${formatMoney(baseLine.promoAmount)}`;
+                baseBundleLine.style.display = baseLine.promoAmount > 0 ? 'flex' : 'none';
                 promoCodeLine.style.display = summary.isFlowTwoBundle ? 'none' : 'block';
 
                 updateAddOnLines(addOnLines, summary);
@@ -2749,22 +2780,20 @@
 
                 if (summary.isAnnual) {
                     const hasMonthlyCharges = summary.monthly.totalBeforePromo > 0;
-                    const hasAnnualPromo = summary.annual.promoAmount > 0;
-                    const hasMonthlyPromo = summary.monthly.promoAmount > 0;
 
                     annualBilling.style.display = 'block';
                     monthlyBilling.style.display = hasMonthlyCharges ? 'block' : 'none';
-                    annualTotalLabel.textContent = 'Annual commitment';
-                    annualTotalAmount.textContent = formatMoney(summary.annual.totalBeforePromo);
-                    annualPromoLine.style.display = hasAnnualPromo ? 'flex' : 'none';
+                    annualTotalLabel.textContent = 'Total billed annually';
+                    annualTotalAmount.textContent = formatMoney(summary.annual.totalAfterPromo);
+                    annualPromoLine.style.display = 'none';
                     annualPromoAmount.textContent = `-${formatMoney(summary.annual.promoAmount)}`;
-                    annualWithPromoLine.style.display = hasAnnualPromo ? 'flex' : 'none';
-                    annualWithPromoLabel.textContent = 'Annual commitment (with promo)';
+                    annualWithPromoLine.style.display = 'none';
+                    annualWithPromoLabel.textContent = 'Total billed annually';
                     annualWithPromoAmount.textContent = formatMoney(summary.annual.totalAfterPromo);
-                    monthlyTotalElement.textContent = formatMoney(summary.monthly.totalBeforePromo);
-                    monthlyPromoLine.style.display = hasMonthlyPromo ? 'flex' : 'none';
+                    monthlyTotalElement.textContent = formatMoney(summary.monthly.totalAfterPromo);
+                    monthlyPromoLine.style.display = 'none';
                     monthlyPromoAmount.textContent = `-${formatMoney(summary.monthly.promoAmount)}`;
-                    monthlyWithPromoLine.style.display = hasMonthlyPromo ? 'flex' : 'none';
+                    monthlyWithPromoLine.style.display = 'none';
                     monthlyWithPromoAmount.textContent = formatMoney(summary.monthly.totalAfterPromo);
 
                     if (summary.mode === 'annual-monthly') {
@@ -2776,18 +2805,28 @@
                 } else {
                     annualBilling.style.display = 'none';
                     monthlyBilling.style.display = 'block';
-                    monthlyTotalElement.textContent = formatMoney(summary.monthly.totalBeforePromo);
-                    monthlyPromoLine.style.display = summary.monthly.promoAmount > 0 ? 'flex' : 'none';
+                    monthlyTotalElement.textContent = formatMoney(summary.monthly.totalAfterPromo);
+                    monthlyPromoLine.style.display = 'none';
                     monthlyPromoAmount.textContent = `-${formatMoney(summary.monthly.promoAmount)}`;
-                    monthlyWithPromoLine.style.display = summary.monthly.promoAmount > 0 ? 'flex' : 'none';
+                    monthlyWithPromoLine.style.display = 'none';
                     monthlyWithPromoAmount.textContent = formatMoney(summary.monthly.totalAfterPromo);
                 }
 
                 if (summary.savings > 0) {
                     savings.style.display = 'block';
+                    savings.classList.remove('bundle-savings-banner');
                     savings.textContent = `Annual savings $${summary.savings.toFixed(0)}`;
+                } else if (summary.isAnnual && summary.isFlowTwoBundle && summary.annual.promoAmount > 0) {
+                    savings.style.display = 'block';
+                    savings.classList.add('bundle-savings-banner');
+                    savings.textContent = `You save ${formatMoney(summary.annual.promoAmount)}/year on ${formatSavingsProducts(summary.productLines)}`;
+                } else if (!summary.isAnnual && summary.isFlowTwoBundle && summary.monthly.promoAmount > 0) {
+                    savings.style.display = 'block';
+                    savings.classList.add('bundle-savings-banner');
+                    savings.textContent = `You save ${formatMoney(summary.monthly.promoAmount)}/month on ${formatSavingsProducts(summary.productLines)}`;
                 } else {
                     savings.style.display = 'none';
+                    savings.classList.remove('bundle-savings-banner');
                 }
 
                 dueTodayLine.style.display = 'flex';
@@ -2827,17 +2866,17 @@
                         addOnGstLine.className = 'summary-line add-on-summary-line add-on-gst-line';
                         addOnGstLine.innerHTML = `
                             <span>GST 10%</span>
-                            <span>${formatMoney(line.subtotal * 0.1)}</span>
+                            <span>${formatMoney(line.gst)}</span>
                         `;
                         orderSummary.insertBefore(addOnGstLine, dynamicAnchor);
                     }
 
-                    if (summary.promo.eligible && isBundleDiscountLine(line.id)) {
+                    if (line.promoAmount > 0) {
                         const addOnPromoLine = document.createElement('div');
                         addOnPromoLine.className = 'summary-line add-on-summary-line product-bundle-line';
                         addOnPromoLine.innerHTML = `
-                            <span>Bundle discount applied</span>
-                            <span></span>
+                            <span>Bundle promo (15% off)</span>
+                            <span>-${formatMoney(line.promoAmount)}</span>
                         `;
                         orderSummary.insertBefore(addOnPromoLine, dynamicAnchor);
                     }
