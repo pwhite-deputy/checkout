@@ -862,6 +862,78 @@
             text-align: left;
         }
 
+        .promo-code-form {
+            display: none;
+        }
+
+        .promo-code-line[open] .promo-code-button {
+            display: none;
+        }
+
+        .promo-code-line[open] .promo-code-form {
+            display: block;
+        }
+
+        .promo-code-button {
+            list-style: none;
+        }
+
+        .promo-code-button::-webkit-details-marker {
+            display: none;
+        }
+
+        .promo-code-title {
+            color: #1f1a44;
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 12px;
+        }
+
+        .promo-code-controls {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: minmax(0, 1fr) auto;
+        }
+
+        .promo-code-input {
+            border: 1px solid #d8d6df;
+            border-radius: 8px;
+            color: #1f1a44;
+            font: inherit;
+            font-size: 1rem;
+            min-width: 0;
+            padding: 12px 16px;
+        }
+
+        .promo-code-input::placeholder {
+            color: #6d6a78;
+        }
+
+        .promo-code-input:focus {
+            border-color: #3f18c8;
+            outline: 2px solid rgba(63, 24, 200, 0.18);
+            outline-offset: 1px;
+        }
+
+        .promo-apply-button {
+            background: #f0edf9;
+            border: 0;
+            border-radius: 8px;
+            color: #3f18c8;
+            cursor: pointer;
+            font: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            min-width: 92px;
+            padding: 12px 20px;
+        }
+
+        .promo-apply-button:hover,
+        .promo-apply-button:focus {
+            background: #e8e2f6;
+        }
+
         .billing-info {
             border-top: 1px solid #ebe8ef;
             padding: 22px 0 0 0;
@@ -1218,6 +1290,14 @@
             .plan-header {
                 align-items: flex-start;
             }
+
+            .promo-code-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .promo-apply-button {
+                justify-self: start;
+            }
         }
     </style>
 </head>
@@ -1465,9 +1545,16 @@
 
             <div class="summary-dynamic-anchor" aria-hidden="true"></div>
 
-            <div class="promo-code-line">
-                <button class="promo-code-button" type="button">Enter promotion code</button>
-            </div>
+            <details class="promo-code-line">
+                <summary class="promo-code-button">Enter promotion code</summary>
+                <div class="promo-code-form" id="promoCodeForm">
+                    <label class="promo-code-title" for="promoCodeInput">Promotion code</label>
+                    <div class="promo-code-controls">
+                        <input class="promo-code-input" id="promoCodeInput" type="text" placeholder="Enter code" autocomplete="off">
+                        <button class="promo-apply-button" type="button">Apply</button>
+                    </div>
+                </div>
+            </details>
 
             <!-- Monthly billing info -->
             <div class="billing-info monthly-billing" style="display: none;">
@@ -1698,6 +1785,8 @@
             const pageBundleBanner = document.querySelector('.page-bundle-banner');
             const pageBundleLink = document.querySelector('.page-bundle-link');
             const bundlePlanCards = document.querySelectorAll('[data-bundle-plan]');
+            const promoCodeInput = document.querySelector('.promo-code-input');
+            const promoApplyButton = document.querySelector('.promo-apply-button');
 
             function clearSelectedAddOns() {
                 selectedAddOns = {};
@@ -2489,6 +2578,10 @@
                 updateOrderSummary();
             });
 
+            promoApplyButton.addEventListener('click', function() {
+                promoCodeInput.focus();
+            });
+
             function formatMoney(amount) {
                 return `$${amount.toFixed(2)}`;
             }
@@ -2750,7 +2843,7 @@
                 baseBundleLine.querySelector('span:first-child').textContent = 'Bundle promo (15% off)';
                 baseBundleLine.querySelector('span:last-child').textContent = `-${formatMoney(baseLine.promoAmount)}`;
                 baseBundleLine.style.display = baseLine.promoAmount > 0 ? 'flex' : 'none';
-                promoCodeLine.style.display = summary.isFlowTwoBundle ? 'none' : 'block';
+                promoCodeLine.style.display = 'block';
 
                 updateAddOnLines(addOnLines, summary);
                 updateBillingSections(summary);
