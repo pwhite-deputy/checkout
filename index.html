@@ -2652,8 +2652,8 @@
                 return (line.subtotal + getLineGst(line)) * bundleDiscountRate;
             }
 
-            function getLineBillingCycle(line, isAnnual) {
-                if (line.id === 'base-plan' || isBundleDiscountLine(line.id)) {
+            function getLineBillingCycle(line, isAnnual, isFlowTwoBundle) {
+                if (line.id === 'base-plan' || (isFlowTwoBundle && isBundleDiscountLine(line.id))) {
                     return isAnnual ? 'annual' : 'monthly';
                 }
 
@@ -2707,7 +2707,7 @@
                     const billingCycle = isFree ? '' : getLineBillingCycle({
                         id: addOnType,
                         billingCycle: addOnData.billing
-                    }, isAnnual);
+                    }, isAnnual, isFlowTwoBundle);
                     const addOnUserCount = billingCycle === 'annual' ? annualUserCount : fixedUserCount;
                     const addOnMonths = billingCycle === 'annual' ? 12 : 1;
 
