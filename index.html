@@ -1468,7 +1468,7 @@
 
                 <div class="add-on-item" data-addon="messaging">
                     <div class="add-on-info">
-                        <h4>Messaging <span class="add-on-free-badge" id="messagingFreeBadge" style="display: none;">Free</span></h4>
+                        <h4>Messaging+ <span class="add-on-free-badge" id="messagingFreeBadge" style="display: none;">Free</span></h4>
                         <p>Description</p>
                         <div class="add-on-price">$2.50 per user/month</div>
 
@@ -1486,7 +1486,7 @@
                         </div>
 
                         <div class="add-on-note">
-                            Messaging pre-paid users matches Premium annual pre-paid users selected above.
+                            Messaging+ pre-paid users matches Premium annual pre-paid users selected above.
                         </div>
                     </div>
                     <div class="add-on-actions">
@@ -1646,7 +1646,7 @@
                             <li class="feature-item">Timesheets</li>
                             <li class="feature-item">Time clock</li>
                             <li class="feature-item">Mobile app</li>
-                            <li class="feature-item">Messaging (Real Time Communication)</li>
+                            <li class="feature-item">Messaging+ (Real Time Communication)</li>
                             <li class="feature-item">Analytics</li>
                             <li class="feature-item">Labour Law Compliance</li>
                             <li class="feature-item">Training Requirements</li>
@@ -1978,7 +1978,7 @@
                 const messagingItem = document.querySelector('[data-addon="messaging"]');
                 const analyticsItem = document.querySelector('[data-addon="analytics"]');
 
-                messagingItem.querySelector('h4').innerHTML = 'Messaging <span class="add-on-free-badge" id="messagingFreeBadge" style="display: none;">Free</span>';
+                messagingItem.querySelector('h4').innerHTML = 'Messaging+ <span class="add-on-free-badge" id="messagingFreeBadge" style="display: none;">Free</span>';
                 messagingItem.querySelector('p').textContent = 'Description';
                 messagingItem.querySelector('.add-on-price').textContent = '$2.50 per user/month';
 
@@ -2612,6 +2612,7 @@
 
             function getAddOnDisplayName(addOnType) {
                 if (addOnType === 'hr') return 'HR';
+                if (addOnType === 'messaging') return 'Messaging+';
                 if (addOnType === 'analytics') return 'Analytics+';
                 return addOnType.charAt(0).toUpperCase() + addOnType.slice(1);
             }
