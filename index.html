@@ -35,7 +35,7 @@
 
         .page-bundle-banner {
             display: none;
-            background: #4518c8;
+            background: #500076;
             color: white;
             min-height: 58px;
             padding: 0 24px;
@@ -848,6 +848,46 @@
             overflow: hidden;
         }
 
+        .pro-included-banner {
+            align-items: flex-start;
+            background: #edf3ff;
+            border-radius: 8px;
+            display: flex;
+            gap: 12px;
+            margin: 24px 0 0;
+            padding: 16px;
+        }
+
+        .pro-included-banner .material-icons {
+            align-items: center;
+            background: #8aa7f0;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            flex: 0 0 auto;
+            font-size: 18px;
+            height: 24px;
+            justify-content: center;
+            line-height: 1;
+            margin-top: 2px;
+            width: 24px;
+        }
+
+        .pro-included-banner strong {
+            color: #1f1a44;
+            display: block;
+            font-size: 0.9375rem;
+            line-height: 1.35;
+            margin-bottom: 4px;
+        }
+
+        .pro-included-banner span:last-child {
+            color: #1f1a44;
+            display: block;
+            font-size: 0.9375rem;
+            line-height: 1.45;
+        }
+
         .promo-code-line {
             border-top: 1px solid #ebe8ef;
             margin: 26px 0 0;
@@ -1097,7 +1137,7 @@
             gap: 14px;
             min-height: 46px;
             padding: 0 32px;
-            background: #4518c8;
+            background: #500076;
             color: white;
             font-size: 0.875rem;
             font-weight: 500;
@@ -2936,8 +2976,27 @@
                 const dynamicAnchor = document.querySelector('.summary-dynamic-anchor');
                 const existingAddOnLines = orderSummary.querySelectorAll('.add-on-summary-line');
                 existingAddOnLines.forEach(line => line.remove());
+                let hasInsertedProIncludedBanner = false;
 
                 for (const line of addOnLines) {
+                    if (line.free && (line.id === 'messaging' || line.id === 'analytics')) {
+                        if (!hasInsertedProIncludedBanner) {
+                            const proIncludedBanner = document.createElement('div');
+                            proIncludedBanner.className = 'add-on-summary-line pro-included-banner';
+                            proIncludedBanner.innerHTML = `
+                                <span class="material-icons" aria-hidden="true">check</span>
+                                <span>
+                                    <strong>Analytics+ and Messaging+ included in Pro</strong>
+                                    <span>These add-ons are now included in your Pro plan at no extra cost.</span>
+                                </span>
+                            `;
+                            orderSummary.insertBefore(proIncludedBanner, dynamicAnchor);
+                            hasInsertedProIncludedBanner = true;
+                        }
+
+                        continue;
+                    }
+
                     const addOnNameLine = document.createElement('div');
                     addOnNameLine.className = 'summary-line add-on-summary-line add-on-name-line';
                     const displayName = line.billingModeLabel ?
